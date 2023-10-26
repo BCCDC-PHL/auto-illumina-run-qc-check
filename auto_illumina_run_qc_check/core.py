@@ -133,7 +133,7 @@ def qc_check(config, run):
         qc_check['checked_metrics'] = []
         for qc_threshold in config['qc_thresholds']:
             instrument_type_matches = qc_threshold['instrument_type'].lower() == run['instrument_type']
-            flowcell_version_matches = qc_threshold['flowcell_version'] == run['run_parameters']['flowcell_version']
+            flowcell_version_matches = qc_threshold['flowcell_version'] == run['run_parameters'].get('flowcell_version', None)
             flowcell_version_not_specified = 'flowcell_version' not in qc_threshold
             if all([instrument_type_matches, (flowcell_version_matches or flowcell_version_not_specified)]):
                 metric = qc_threshold['metric']
