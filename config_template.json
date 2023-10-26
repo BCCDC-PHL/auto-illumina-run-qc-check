@@ -1,0 +1,34 @@
+{
+    "excluded_runs_list": "excluded_runs.csv",
+    "scan_interval_seconds": 10,
+    "run_parent_dirs": [
+	"/path/to/M00123/23",
+	"/path/to/VH00123/23"
+    ],
+    "qc_thresholds": [
+	{
+	    "metric": "ErrorRate",
+	    "threshold": 0.3,
+	    "pass_above_or_below": "below",
+	    "run_type": "MiSeq"
+	},
+	{
+	    "metric": "ErrorRate",
+	    "threshold": 0.3,
+	    "pass_above_or_below": "below",
+	    "run_type": "NextSeq"
+	},
+	{
+	    "metric": "PercentGtQ30",
+	    "threshold": 0.75,
+	    "pass_above_or_below": "above",
+	    "run_type": "MiSeq"
+	},
+	{
+	    "metric": "PercentGtQ30",
+	    "threshold": 0.75,
+	    "pass_above_or_below": "above",
+	    "run_type": "NextSeq"
+	}
+    ]
+}
