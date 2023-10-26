@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import collections
 import math
@@ -408,8 +406,21 @@ def parse_interop_summary(summary_lines):
     return sequencingstats
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--summary')
-    args = parser.parse_args()
-    main(args)
+def parse_run_parameters_xml(run_parameters_xml_path, instrument_type):
+    """
+    """
+    run_parameters = {}
+    with open(run_parameters_xml_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if instrument_type == 'miseq':
+                if re.search("^<ReagentKitVersion>", line):
+                    version = re.search("<ReagentKitVersion>(.*)</ReagentKitVersion>", line).group(1)
+                    version_num = version.lstrip('Version')
+                    run_parameters['flowcell_version'] = version_num
+            elif instrument_type == 'nextseq':
+                if re.search("^<FlowCellVersion>", line):
+                    version_num = re.search("<FlowCellVersion>(.*)</FlowCellVersion>", line).group(1)
+                    run_parameters['flowcell_version'] = version_num
+
+    return run_parameters
