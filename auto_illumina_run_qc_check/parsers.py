@@ -353,6 +353,12 @@ def parse_run_stats(summary_lines):
 
 def parse_interop_summary(summary_lines):
     """
+    Parse an interop summary csv file into a dict.
+
+    :param summary_lines: A list of lines from an interop summary csv file.
+    :type summary_lines: list[str]
+    :return: A dict containing the parsed interop summary. Keys: ['ClusterDensity', 'ErrorRate', 'IntensityCycle1', 'PercentAligned', 'PercentGtQ30', 'ProjectedTotalYield', 'YieldTotal', 'Reads', 'LanesByRead']
+    :rtype: dict[str, object]
     """
     sequencingstats = {}
     read_summary = parse_read_summary(summary_lines)
@@ -402,6 +408,8 @@ def parse_interop_summary(summary_lines):
 
     sequencingstats['Reads'] = reads
     sequencingstats['LanesByRead'] = lanes_by_read
+    if len(lanes_by_read) > 0 and 'ClusterDensity' in lanes_by_read[0]:
+        sequencingstats['ClusterDensity'] = lanes_by_read[0]['ClusterDensity']
 
     return sequencingstats
 

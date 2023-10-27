@@ -142,6 +142,7 @@ def qc_check(config, run):
                 checked_metric['metric'] = metric
                 checked_metric['value'] = qc_metrics[metric]
                 checked_metric['threshold'] = threshold
+                checked_metric['pass_above_or_below'] = qc_threshold['pass_above_or_below']
                 if qc_threshold['pass_above_or_below'] == 'above':
                     if qc_metrics[metric] >= threshold:
                         checked_metric['pass_fail'] = "PASS"
