@@ -41,6 +41,12 @@ def find_run_dirs(config, check_upload_complete=True):
                 instrument_type = 'miseq'
             elif matches_nextseq_regex:
                 instrument_type = 'nextseq'
+
+            run_parameters = {}
+            run_parameters_path = os.path.join(subdir, 'RunParameters.xml')
+            if os.path.exists(run_parameters_path):
+                run_parameters = parsers.parse_run_parameters_xml(run_parameters_path, instrument_type)
+                    
             upload_complete = os.path.exists(os.path.join(subdir, 'upload_complete.json'))
             not_excluded = False
             if 'excluded_runs' in config:
@@ -61,6 +67,7 @@ def find_run_dirs(config, check_upload_complete=True):
                 run['path'] = os.path.abspath(subdir.path)
                 run['sequencing_run_id'] = run_id
                 run['instrument_type'] = instrument_type
+                run['run_parameters'] = run_parameters
                 yield run
             else:
                 logging.debug(json.dumps({"event_type": "directory_skipped", "run_directory_path": os.path.abspath(subdir.path), "conditions_checked": conditions_checked}))
@@ -125,13 +132,17 @@ def qc_check(config, run):
         qc_check = {}
         qc_check['checked_metrics'] = []
         for qc_threshold in config['qc_thresholds']:
-            if qc_threshold['run_type'].lower() == run['instrument_type']:
+            instrument_type_matches = qc_threshold['instrument_type'].lower() == run['instrument_type']
+            flowcell_version_matches = qc_threshold['flowcell_version'] == run['run_parameters'].get('flowcell_version', None)
+            flowcell_version_not_specified = 'flowcell_version' not in qc_threshold
+            if all([instrument_type_matches, (flowcell_version_matches or flowcell_version_not_specified)]):
                 metric = qc_threshold['metric']
                 threshold = qc_threshold['threshold']
                 checked_metric = {}
                 checked_metric['metric'] = metric
                 checked_metric['value'] = qc_metrics[metric]
                 checked_metric['threshold'] = threshold
+                checked_metric['pass_above_or_below'] = qc_threshold['pass_above_or_below']
                 if qc_threshold['pass_above_or_below'] == 'above':
                     if qc_metrics[metric] >= threshold:
                         checked_metric['pass_fail'] = "PASS"
@@ -148,7 +159,8 @@ def qc_check(config, run):
         if all([m['pass_fail'] == "PASS" for m in qc_check['checked_metrics']]):
             qc_check['overall_pass_fail'] = "PASS"
         qc_check['run_id'] = run_id
-        qc_check['run_type'] = run['instrument_type']
+        qc_check['instrument_type'] = run['instrument_type']
+        qc_check['run_parameters'] = run['run_parameters']
         qc_check['timestamp_qc_check_started'] = timestamp_qc_check_started
         qc_check['timestamp_qc_check_completed'] = timestamp_qc_check_completed
         qc_check_complete_output_path = os.path.join(run['path'], 'qc_check_complete.json')

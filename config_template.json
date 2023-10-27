@@ -10,25 +10,29 @@
 	    "metric": "ErrorRate",
 	    "threshold": 0.3,
 	    "pass_above_or_below": "below",
-	    "run_type": "MiSeq"
+	    "run_type": "MiSeq",
+	    "flowcell_version": "2"
 	},
 	{
 	    "metric": "ErrorRate",
 	    "threshold": 0.3,
 	    "pass_above_or_below": "below",
-	    "run_type": "NextSeq"
+	    "run_type": "NextSeq",
+	    "flowcell_version": "2"
 	},
 	{
 	    "metric": "PercentGtQ30",
 	    "threshold": 0.75,
 	    "pass_above_or_below": "above",
-	    "run_type": "MiSeq"
+	    "run_type": "MiSeq",
+	    "flowcell_version": "2"
 	},
 	{
 	    "metric": "PercentGtQ30",
 	    "threshold": 0.75,
 	    "pass_above_or_below": "above",
-	    "run_type": "NextSeq"
+	    "run_type": "NextSeq",
+	    "flowcell_version": "2"
 	}
     ]
 }

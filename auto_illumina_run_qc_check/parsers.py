@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import collections
 import math
@@ -355,6 +353,12 @@ def parse_run_stats(summary_lines):
 
 def parse_interop_summary(summary_lines):
     """
+    Parse an interop summary csv file into a dict.
+
+    :param summary_lines: A list of lines from an interop summary csv file.
+    :type summary_lines: list[str]
+    :return: A dict containing the parsed interop summary. Keys: ['ClusterDensity', 'ErrorRate', 'IntensityCycle1', 'PercentAligned', 'PercentGtQ30', 'ProjectedTotalYield', 'YieldTotal', 'Reads', 'LanesByRead']
+    :rtype: dict[str, object]
     """
     sequencingstats = {}
     read_summary = parse_read_summary(summary_lines)
@@ -404,12 +408,27 @@ def parse_interop_summary(summary_lines):
 
     sequencingstats['Reads'] = reads
     sequencingstats['LanesByRead'] = lanes_by_read
+    if len(lanes_by_read) > 0 and 'ClusterDensity' in lanes_by_read[0]:
+        sequencingstats['ClusterDensity'] = lanes_by_read[0]['ClusterDensity']
 
     return sequencingstats
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--summary')
-    args = parser.parse_args()
-    main(args)
+def parse_run_parameters_xml(run_parameters_xml_path, instrument_type):
+    """
+    """
+    run_parameters = {}
+    with open(run_parameters_xml_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if instrument_type == 'miseq':
+                if re.search("^<ReagentKitVersion>", line):
+                    version = re.search("<ReagentKitVersion>(.*)</ReagentKitVersion>", line).group(1)
+                    version_num = version.lstrip('Version')
+                    run_parameters['flowcell_version'] = version_num
+            elif instrument_type == 'nextseq':
+                if re.search("^<FlowCellVersion>", line):
+                    version_num = re.search("<FlowCellVersion>(.*)</FlowCellVersion>", line).group(1)
+                    run_parameters['flowcell_version'] = version_num
+
+    return run_parameters
