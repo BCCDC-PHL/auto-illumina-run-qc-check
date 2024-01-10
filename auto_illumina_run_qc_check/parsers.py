@@ -7,6 +7,15 @@ import json
 
 
 def parse_read_summary_line(read_summary_line):
+    """
+    Parse a line from a read summary csv file into a dict.
+
+    :param read_summary_line: A line from a read summary csv file.
+    :type read_summary_line: str
+    :return: A dict containing the parsed read summary line.
+             Keys: ['ReadNumber', 'IsIndexed', 'TotalCycles', 'YieldTotal', 'ProjectedTotalYield', 'PercentAligned', 'ErrorRate', 'IntensityCycle1', 'PercentGtQ30']
+    :rtype: dict[str, object]
+    """
     parsed_read_summary_line = {}
 
     read_summary_line = read_summary_line.strip().split(',')
@@ -74,8 +83,16 @@ def parse_read_summary_line(read_summary_line):
 
 
 def parse_read_summary(summary_lines):
-    read_summary = []
+    """
+    Parse a read summary csv file into a list of dicts.
 
+    :param summary_lines: A list of lines from a read summary csv file.
+    :type summary_lines: list[str]
+    :return: A list of dicts containing the parsed read summary.
+             Keys: ['ReadNumber', 'IsIndexed', 'TotalCycles', 'YieldTotal', 'ProjectedTotalYield', 'PercentAligned', 'ErrorRate', 'IntensityCycle1', 'PercentGtQ30']
+    :rtype: list[dict[str, object]]
+    """
+    read_summary = []
 
     header_line_num = 0
     for line in summary_lines:
@@ -95,6 +112,17 @@ def parse_read_summary(summary_lines):
 
 
 def parse_read_line(read_line, read_number):
+    """
+    Parse a line from a read summary csv file into a dict.
+
+    :param read_line: A line from a read summary csv file.
+    :type read_line: str
+    :param read_number: The read number.
+    :type read_number: int
+    :return: A dict containing the parsed read line.
+             Keys: ['ReadNumber', 'LaneNumber', 'Surface', 'TileCount', 'Density', 'DensityDeviation', 'PercentPf', 'PercentPfDeviation', 'Reads', 'ReadsPf', 'PercentGtQ30', 'Yield', 'CyclesError', 'PercentAligned', 'PercentAlignedDeviation', 'ErrorRate', 'ErrorRateDeviation', 'ErrorRate35', 'ErrorRate35Deviation', 'ErrorRate75', 'ErrorRate75Deviation', 'ErrorRate100', 'ErrorRate100Deviation', 'IntensityCycle1', 'IntensityCycle1Deviation', 'PhasingSlope', 'PhasingOffset', 'PrePhasingSlope', 'PrePhasingOffset', 'ClusterDensity', 'Occupancy']
+    :rtype: dict[str, object]
+    """
     parsed_read_line = {}
 
     headers_input_order = [
@@ -229,12 +257,19 @@ def parse_read_line(read_line, read_number):
             parsed_read_line[k] = 0
 
     parsed_read_line_ordered = collections.OrderedDict(sorted(parsed_read_line.items(), key=lambda x: headers_output_order.index(x[0])))
-    
+
     return parsed_read_line_ordered
 
 
 def parse_lanes_by_read(summary_lines):
     """
+    Parse a read summary csv file into a list of dicts.
+
+    :param summary_lines: A list of lines from a read summary csv file.
+    :type summary_lines: list[str]
+    :return: A list of dicts containing the parsed read summary.
+             Keys: ['ReadNumber', 'LaneNumber', 'Surface', 'TileCount', 'Density', 'DensityDeviation', 'PercentPf', 'PercentPfDeviation', 'Reads', 'ReadsPf', 'PercentGtQ30', 'Yield', 'CyclesError', 'PercentAligned', 'PercentAlignedDeviation', 'ErrorRate', 'ErrorRateDeviation', 'ErrorRate35', 'ErrorRate35Deviation', 'ErrorRate75', 'ErrorRate75Deviation', 'ErrorRate100', 'ErrorRate100Deviation', 'IntensityCycle1', 'IntensityCycle1Deviation', 'PhasingSlope', 'PhasingOffset', 'PrePhasingSlope', 'PrePhasingOffset', 'ClusterDensity', 'Occupancy']
+    :rtype: list[dict[str, object]]
     """
     lanes_by_read = []
     read_number = None
@@ -268,6 +303,12 @@ def parse_lanes_by_read(summary_lines):
 
 def parse_run_stats(summary_lines):
     """
+    Parse a run stats csv file into a dict.
+
+    :param summary_lines: A list of lines from a run stats csv file.
+    :type summary_lines: list[str]
+    :return: A dict containing the parsed run stats. Keys: ['PercentGtQ30', 'ProjectedTotalYield', 'YieldTotal', 'ErrorRate', 'PercentAligned', 'Occupancy', 'Reads']
+    :rtype: dict[str, object]
     """
     run_stats = collections.OrderedDict()
 
@@ -406,16 +447,30 @@ def parse_interop_summary(summary_lines):
         
     lanes_by_read = parse_lanes_by_read(summary_lines)
 
+    # The ClusterDensity and PercentPf fields are only present in the lanes_by_read list.
+    # Lift them up to the top level of the dict, to make it easier to access them as run-level metrics.
+    if len(lanes_by_read) > 0:
+        if 'ClusterDensity' in lanes_by_read[0]:
+            sequencingstats['ClusterDensity'] = lanes_by_read[0]['ClusterDensity']
+        if 'PercentPf' in lanes_by_read[0]:
+            sequencingstats['PercentPf'] = lanes_by_read[0]['PercentPf']
+
     sequencingstats['Reads'] = reads
     sequencingstats['LanesByRead'] = lanes_by_read
-    if len(lanes_by_read) > 0 and 'ClusterDensity' in lanes_by_read[0]:
-        sequencingstats['ClusterDensity'] = lanes_by_read[0]['ClusterDensity']
 
     return sequencingstats
 
 
 def parse_run_parameters_xml(run_parameters_xml_path, instrument_type):
     """
+    Parse a run parameters xml file into a dict.
+
+    :param run_parameters_xml_path: The path to the run parameters xml file.
+    :type run_parameters_xml_path: str
+    :param instrument_type: The instrument type. One of ['miseq', 'nextseq'].
+    :type instrument_type: str
+    :return: A dict containing the parsed run parameters. Keys: ['flowcell_version']
+    :rtype: dict[str, object]
     """
     run_parameters = {}
     with open(run_parameters_xml_path, 'r') as f:

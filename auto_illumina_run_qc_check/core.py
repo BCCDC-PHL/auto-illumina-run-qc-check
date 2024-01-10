@@ -129,13 +129,18 @@ def qc_check(config, run):
         with open(qc_metrics_output_path, 'w') as f:
             json.dump(qc_metrics, f, indent=2)
             f.write("\n")
-        qc_check = {}
-        qc_check['checked_metrics'] = []
+        qc_check_result = {}
+        qc_check_result['checked_metrics'] = []
         for qc_threshold in config['qc_thresholds']:
-            instrument_type_matches = qc_threshold['instrument_type'].lower() == run['instrument_type']
-            flowcell_version_matches = qc_threshold['flowcell_version'] == run['run_parameters'].get('flowcell_version', None)
+            instrument_type_matches = qc_threshold.get('instrument_type', '').lower() == run['instrument_type']
+            instrument_type_not_specified = 'instrument_type' not in qc_threshold
+            flowcell_version_matches = qc_threshold.get('flowcell_version', '') == run['run_parameters'].get('flowcell_version', None)
             flowcell_version_not_specified = 'flowcell_version' not in qc_threshold
-            if all([instrument_type_matches, (flowcell_version_matches or flowcell_version_not_specified)]):
+            qc_threshold_application_conditions_met = [
+                (instrument_type_matches or instrument_type_not_specified),
+                (flowcell_version_matches or flowcell_version_not_specified),
+            ]
+            if all(qc_threshold_application_conditions_met):
                 metric = qc_threshold['metric']
                 threshold = qc_threshold['threshold']
                 checked_metric = {}
@@ -153,18 +158,19 @@ def qc_check(config, run):
                         checked_metric['pass_fail'] = "PASS"
                     else:
                         checked_metric['pass_fail'] = "FAIL"
-                qc_check['checked_metrics'].append(checked_metric)
+                qc_check_result['checked_metrics'].append(checked_metric)
 
-        qc_check['overall_pass_fail'] = "FAIL"
-        if all([m['pass_fail'] == "PASS" for m in qc_check['checked_metrics']]):
-            qc_check['overall_pass_fail'] = "PASS"
-        qc_check['run_id'] = run_id
-        qc_check['instrument_type'] = run['instrument_type']
-        qc_check['run_parameters'] = run['run_parameters']
-        qc_check['timestamp_qc_check_started'] = timestamp_qc_check_started
-        qc_check['timestamp_qc_check_completed'] = timestamp_qc_check_completed
+        qc_check_result['overall_pass_fail'] = "FAIL"
+        qc_pass_conditions_met = [m['pass_fail'] == "PASS" for m in qc_check_result['checked_metrics']]
+        if all(qc_pass_conditions_met):
+            qc_check_result['overall_pass_fail'] = "PASS"
+        qc_check_result['sequencing_run_id'] = run_id
+        qc_check_result['instrument_type'] = run['instrument_type']
+        qc_check_result['run_parameters'] = run['run_parameters']
+        qc_check_result['timestamp_qc_check_started'] = timestamp_qc_check_started
+        qc_check_result['timestamp_qc_check_completed'] = timestamp_qc_check_completed
         qc_check_complete_output_path = os.path.join(run['path'], 'qc_check_complete.json')
         with open(qc_check_complete_output_path, 'w') as f:
-            json.dump(qc_check, f, indent=2)
+            json.dump(qc_check_result, f, indent=2)
             f.write("\n")
-        logging.info(json.dumps({"event_type": "qc_check_complete", "sequencing_run_id": run_id, "qc_check": qc_check}))
+        logging.info(json.dumps({"event_type": "qc_check_complete", "sequencing_run_id": run_id, "qc_check_result": qc_check_result['overall_pass_fail']}))

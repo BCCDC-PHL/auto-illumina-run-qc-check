@@ -37,6 +37,10 @@ def main():
 
     while(True):
         try:
+            # Safe to quit before initiating a full scan.
+            if quit_when_safe:
+                exit(0)
+
             if args.config:
                 try:
                     config = auto_illumina_run_qc_check.config.load_config(args.config)
@@ -60,6 +64,8 @@ def main():
                     except json.decoder.JSONDecodeError as e:
                         logging.error(json.dumps({"event_type": "load_config_failed", "config_file": os.path.abspath(args.config)}))
                     core.qc_check(config, run)
+
+                # Safe to quit after completing a qc check on a single run.
                 if quit_when_safe:
                     exit(0)
             scan_complete_timestamp = datetime.datetime.now()
@@ -67,6 +73,7 @@ def main():
             scan_duration_seconds = scan_duration_delta.total_seconds()
             logging.info(json.dumps({"event_type": "scan_complete", "scan_duration_seconds": scan_duration_seconds}))
 
+            # Safe to quit after completing a full scan.
             if quit_when_safe:
                 exit(0)
 
