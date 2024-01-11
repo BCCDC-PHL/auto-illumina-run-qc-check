@@ -12,7 +12,9 @@ setup(
     scripts=[],
     package_data={
     },
+    python_requires='>=3.5,<3.11',
     install_requires=[
+        'interop==1.3.1',
     ],
     description='Automated checking of run-level QC metrics for illumina sequencing runs.',
     url='https://github.com/BCCDC-PHL/auto-illumina-run-qc-check',
