@@ -3,6 +3,31 @@ Automated run-level QC check for illumina sequencing runs.
 
 # Installation
 
+Clone this repo:
+
+```
+git clone git@github.com:BCCDC-PHL/auto-illumina-run-qc-check.git
+cd auto-illumina-run-qc-check
+```
+
+Create a conda env, including python (>3.5,<3.11) and pip:
+
+```
+conda create -n auto-illumina-run-qc-check python=3.10 pip
+```
+
+Activate the conda env
+
+```
+conda activate auto-illumina-run-qc-check
+```
+
+Use pip to install:
+
+```
+pip install .
+```
+
 # Usage
 Start the tool as follows:
 
