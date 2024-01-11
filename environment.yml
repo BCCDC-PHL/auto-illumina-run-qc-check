@@ -1,0 +1,9 @@
+name: auto-illumina-run-qc-check
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - illumina-interop=1.3.1

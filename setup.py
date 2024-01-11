@@ -12,6 +12,7 @@ setup(
     scripts=[],
     package_data={
     },
+    python_requires='>=3.5,<3.11',
     install_requires=[
     ],
     description='Automated checking of run-level QC metrics for illumina sequencing runs.',
