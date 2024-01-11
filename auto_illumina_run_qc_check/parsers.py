@@ -33,6 +33,7 @@ def parse_read_summary_line(read_summary_line):
 
     level_to_read_number = {
         'Read 1': 1,
+        'Read 2': 2,
         'Read 2 (I)': 2,
         'Read 3 (I)': 3,
         'Read 3': 3,
@@ -277,6 +278,8 @@ def parse_lanes_by_read(summary_lines):
     for line in summary_lines:
         if re.match("^Read 1$", line):
             read_number = 1
+        elif re.match("^Read 2$", line):
+            read_number = 2
         elif re.match("^Read 2 \(I\)$", line):
             read_number = 2
         elif re.match("^Read 3 \(I\)$", line):
@@ -328,6 +331,7 @@ def parse_run_stats(summary_lines):
 
     level_to_read_number = {
         'Read 1': 1,
+        'Read 2': 2,
         'Read 2 (I)': 2,
         'Read 3 (I)': 3,
         'Read 3': 3,
