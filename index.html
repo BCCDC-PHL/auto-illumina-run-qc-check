@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BCCDC-PHL Auto Illumina Run QC Check &mdash; BCCDC-PHL Auto Illumina Run QC Check  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#" class="icon icon-home"> BCCDC-PHL Auto Illumina Run QC Check
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">BCCDC-PHL Auto Illumina Run QC Check</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#auto-illumina-run-qc-check-core">auto_illumina_run_qc_check.core</a><ul>
+<li><a class="reference internal" href="#auto_illumina_run_qc_check.core.find_run_dirs"><code class="docutils literal notranslate"><span class="pre">find_run_dirs()</span></code></a></li>
+<li><a class="reference internal" href="#auto_illumina_run_qc_check.core.qc_check"><code class="docutils literal notranslate"><span class="pre">qc_check()</span></code></a></li>
+<li><a class="reference internal" href="#auto_illumina_run_qc_check.core.scan"><code class="docutils literal notranslate"><span class="pre">scan()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#auto-illumina-run-qc-check-parsers">auto_illumina_run_qc_check.parsers</a><ul>
+<li><a class="reference internal" href="#auto_illumina_run_qc_check.parsers.parse_interop_summary"><code class="docutils literal notranslate"><span class="pre">parse_interop_summary()</span></code></a></li>
+<li><a class="reference internal" href="#auto_illumina_run_qc_check.parsers.parse_lanes_by_read"><code class="docutils literal notranslate"><span class="pre">parse_lanes_by_read()</span></code></a></li>
+<li><a class="reference internal" href="#auto_illumina_run_qc_check.parsers.parse_read_line"><code class="docutils literal notranslate"><span class="pre">parse_read_line()</span></code></a></li>
+<li><a class="reference internal" href="#auto_illumina_run_qc_check.parsers.parse_read_summary"><code class="docutils literal notranslate"><span class="pre">parse_read_summary()</span></code></a></li>
+<li><a class="reference internal" href="#auto_illumina_run_qc_check.parsers.parse_read_summary_line"><code class="docutils literal notranslate"><span class="pre">parse_read_summary_line()</span></code></a></li>
+<li><a class="reference internal" href="#auto_illumina_run_qc_check.parsers.parse_run_parameters_xml"><code class="docutils literal notranslate"><span class="pre">parse_run_parameters_xml()</span></code></a></li>
+<li><a class="reference internal" href="#auto_illumina_run_qc_check.parsers.parse_run_stats"><code class="docutils literal notranslate"><span class="pre">parse_run_stats()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#auto-illumina-run-qc-check-config">auto_illumina_run_qc_check.config</a><ul>
+<li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">parse_interop_summary()</span></code></a></li>
+<li><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">parse_lanes_by_read()</span></code></a></li>
+<li><a class="reference internal" href="#id2"><code class="docutils literal notranslate"><span class="pre">parse_read_line()</span></code></a></li>
+<li><a class="reference internal" href="#id3"><code class="docutils literal notranslate"><span class="pre">parse_read_summary()</span></code></a></li>
+<li><a class="reference internal" href="#id4"><code class="docutils literal notranslate"><span class="pre">parse_read_summary_line()</span></code></a></li>
+<li><a class="reference internal" href="#id5"><code class="docutils literal notranslate"><span class="pre">parse_run_parameters_xml()</span></code></a></li>
+<li><a class="reference internal" href="#id6"><code class="docutils literal notranslate"><span class="pre">parse_run_stats()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">BCCDC-PHL Auto Illumina Run QC Check</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">BCCDC-PHL Auto Illumina Run QC Check</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bccdc-phl-auto-illumina-run-qc-check">
+<h1>BCCDC-PHL Auto Illumina Run QC Check<a class="headerlink" href="#bccdc-phl-auto-illumina-run-qc-check" title="Permalink to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+<section id="auto-illumina-run-qc-check-core">
+<h1>auto_illumina_run_qc_check.core<a class="headerlink" href="#auto-illumina-run-qc-check-core" title="Permalink to this heading"></a></h1>
+<p>This module includes the core functionality for performing QC checks on an illumina sequencing run.</p>
+<span class="target" id="module-auto_illumina_run_qc_check.core"></span><dl class="py function">
+<dt class="sig sig-object py" id="auto_illumina_run_qc_check.core.find_run_dirs">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.core.</span></span><span class="sig-name descname"><span class="pre">find_run_dirs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_upload_complete</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auto_illumina_run_qc_check.core.find_run_dirs" title="Permalink to this definition"></a></dt>
+<dd><p>Find sequencing run directories under the ‘run_parent_dirs’ listed in the config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em>) – Application config.</p></li>
+<li><p><strong>check_upload_complete</strong> (<em>bool</em>) – Check for presence of ‘upload_complete.json’ file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Run directory. Keys: [‘sequencing_run_id’, ‘path’, ‘instrument_type’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Iterator[Optional[dict[str, str]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="auto_illumina_run_qc_check.core.qc_check">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.core.</span></span><span class="sig-name descname"><span class="pre">qc_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auto_illumina_run_qc_check.core.qc_check" title="Permalink to this definition"></a></dt>
+<dd><p>Initiate an analysis on one directory of fastq files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em>) – Application config.</p></li>
+<li><p><strong>run</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – Run directory. Keys: [‘sequencing_run_id’, ‘path’, ‘instrument_type’]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="auto_illumina_run_qc_check.core.scan">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.core.</span></span><span class="sig-name descname"><span class="pre">scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#auto_illumina_run_qc_check.core.scan" title="Permalink to this definition"></a></dt>
+<dd><p>Scanning involves looking for all existing runs and storing them to the database,
+then looking for all existing symlinks and storing them to the database.
+At the end of a scan, we should be able to determine which (if any) symlinks need to be created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em>) – Application config.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A run directory to analyze, or None</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Iterator[Optional[dict[str, object]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="auto-illumina-run-qc-check-parsers">
+<h1>auto_illumina_run_qc_check.parsers<a class="headerlink" href="#auto-illumina-run-qc-check-parsers" title="Permalink to this heading"></a></h1>
+<p>This module includes functions for parsing the interop summary and RunParameters.xml files</p>
+<span class="target" id="module-auto_illumina_run_qc_check.parsers"></span><dl class="py function">
+<dt class="sig sig-object py" id="auto_illumina_run_qc_check.parsers.parse_interop_summary">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_interop_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_lines</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auto_illumina_run_qc_check.parsers.parse_interop_summary" title="Permalink to this definition"></a></dt>
+<dd><p>Parse an interop summary csv file into a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>summary_lines</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of lines from an interop summary csv file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict containing the parsed interop summary. Keys: [‘ClusterDensity’, ‘ErrorRate’, ‘IntensityCycle1’, ‘PercentAligned’, ‘PercentGtQ30’, ‘ProjectedTotalYield’, ‘YieldTotal’, ‘Reads’, ‘LanesByRead’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="auto_illumina_run_qc_check.parsers.parse_lanes_by_read">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_lanes_by_read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_lines</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auto_illumina_run_qc_check.parsers.parse_lanes_by_read" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a read summary csv file into a list of dicts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>summary_lines</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of lines from a read summary csv file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of dicts containing the parsed read summary.
+Keys: [‘ReadNumber’, ‘LaneNumber’, ‘Surface’, ‘TileCount’, ‘Density’, ‘DensityDeviation’, ‘PercentPf’, ‘PercentPfDeviation’, ‘Reads’, ‘ReadsPf’, ‘PercentGtQ30’, ‘Yield’, ‘CyclesError’, ‘PercentAligned’, ‘PercentAlignedDeviation’, ‘ErrorRate’, ‘ErrorRateDeviation’, ‘ErrorRate35’, ‘ErrorRate35Deviation’, ‘ErrorRate75’, ‘ErrorRate75Deviation’, ‘ErrorRate100’, ‘ErrorRate100Deviation’, ‘IntensityCycle1’, ‘IntensityCycle1Deviation’, ‘PhasingSlope’, ‘PhasingOffset’, ‘PrePhasingSlope’, ‘PrePhasingOffset’, ‘ClusterDensity’, ‘Occupancy’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[dict[str, object]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="auto_illumina_run_qc_check.parsers.parse_read_line">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_read_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_line</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_number</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auto_illumina_run_qc_check.parsers.parse_read_line" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a line from a read summary csv file into a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>read_line</strong> (<em>str</em>) – A line from a read summary csv file.</p></li>
+<li><p><strong>read_number</strong> (<em>int</em>) – The read number.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict containing the parsed read line.
+Keys: [‘ReadNumber’, ‘LaneNumber’, ‘Surface’, ‘TileCount’, ‘Density’, ‘DensityDeviation’, ‘PercentPf’, ‘PercentPfDeviation’, ‘Reads’, ‘ReadsPf’, ‘PercentGtQ30’, ‘Yield’, ‘CyclesError’, ‘PercentAligned’, ‘PercentAlignedDeviation’, ‘ErrorRate’, ‘ErrorRateDeviation’, ‘ErrorRate35’, ‘ErrorRate35Deviation’, ‘ErrorRate75’, ‘ErrorRate75Deviation’, ‘ErrorRate100’, ‘ErrorRate100Deviation’, ‘IntensityCycle1’, ‘IntensityCycle1Deviation’, ‘PhasingSlope’, ‘PhasingOffset’, ‘PrePhasingSlope’, ‘PrePhasingOffset’, ‘ClusterDensity’, ‘Occupancy’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="auto_illumina_run_qc_check.parsers.parse_read_summary">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_read_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_lines</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auto_illumina_run_qc_check.parsers.parse_read_summary" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a read summary csv file into a list of dicts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>summary_lines</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of lines from a read summary csv file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of dicts containing the parsed read summary.
+Keys: [‘ReadNumber’, ‘IsIndexed’, ‘TotalCycles’, ‘YieldTotal’, ‘ProjectedTotalYield’, ‘PercentAligned’, ‘ErrorRate’, ‘IntensityCycle1’, ‘PercentGtQ30’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[dict[str, object]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="auto_illumina_run_qc_check.parsers.parse_read_summary_line">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_read_summary_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_summary_line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auto_illumina_run_qc_check.parsers.parse_read_summary_line" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a line from a read summary csv file into a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>read_summary_line</strong> (<em>str</em>) – A line from a read summary csv file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict containing the parsed read summary line.
+Keys: [‘ReadNumber’, ‘IsIndexed’, ‘TotalCycles’, ‘YieldTotal’, ‘ProjectedTotalYield’, ‘PercentAligned’, ‘ErrorRate’, ‘IntensityCycle1’, ‘PercentGtQ30’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="auto_illumina_run_qc_check.parsers.parse_run_parameters_xml">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_run_parameters_xml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_parameters_xml_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auto_illumina_run_qc_check.parsers.parse_run_parameters_xml" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a run parameters xml file into a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_parameters_xml_path</strong> (<em>str</em>) – The path to the run parameters xml file.</p></li>
+<li><p><strong>instrument_type</strong> (<em>str</em>) – The instrument type. One of [‘miseq’, ‘nextseq’].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict containing the parsed run parameters. Keys: [‘flowcell_version’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="auto_illumina_run_qc_check.parsers.parse_run_stats">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_run_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_lines</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auto_illumina_run_qc_check.parsers.parse_run_stats" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a run stats csv file into a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>summary_lines</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of lines from a run stats csv file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict containing the parsed run stats. Keys: [‘PercentGtQ30’, ‘ProjectedTotalYield’, ‘YieldTotal’, ‘ErrorRate’, ‘PercentAligned’, ‘Occupancy’, ‘Reads’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="auto-illumina-run-qc-check-config">
+<h1>auto_illumina_run_qc_check.config<a class="headerlink" href="#auto-illumina-run-qc-check-config" title="Permalink to this heading"></a></h1>
+<p>This module includes functions for loading the application config file.</p>
+<span class="target" id="module-0"></span><dl class="py function">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_interop_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_lines</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<dd><p>Parse an interop summary csv file into a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>summary_lines</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of lines from an interop summary csv file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict containing the parsed interop summary. Keys: [‘ClusterDensity’, ‘ErrorRate’, ‘IntensityCycle1’, ‘PercentAligned’, ‘PercentGtQ30’, ‘ProjectedTotalYield’, ‘YieldTotal’, ‘Reads’, ‘LanesByRead’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_lanes_by_read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_lines</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a read summary csv file into a list of dicts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>summary_lines</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of lines from a read summary csv file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of dicts containing the parsed read summary.
+Keys: [‘ReadNumber’, ‘LaneNumber’, ‘Surface’, ‘TileCount’, ‘Density’, ‘DensityDeviation’, ‘PercentPf’, ‘PercentPfDeviation’, ‘Reads’, ‘ReadsPf’, ‘PercentGtQ30’, ‘Yield’, ‘CyclesError’, ‘PercentAligned’, ‘PercentAlignedDeviation’, ‘ErrorRate’, ‘ErrorRateDeviation’, ‘ErrorRate35’, ‘ErrorRate35Deviation’, ‘ErrorRate75’, ‘ErrorRate75Deviation’, ‘ErrorRate100’, ‘ErrorRate100Deviation’, ‘IntensityCycle1’, ‘IntensityCycle1Deviation’, ‘PhasingSlope’, ‘PhasingOffset’, ‘PrePhasingSlope’, ‘PrePhasingOffset’, ‘ClusterDensity’, ‘Occupancy’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[dict[str, object]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_read_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_line</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_number</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a line from a read summary csv file into a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>read_line</strong> (<em>str</em>) – A line from a read summary csv file.</p></li>
+<li><p><strong>read_number</strong> (<em>int</em>) – The read number.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict containing the parsed read line.
+Keys: [‘ReadNumber’, ‘LaneNumber’, ‘Surface’, ‘TileCount’, ‘Density’, ‘DensityDeviation’, ‘PercentPf’, ‘PercentPfDeviation’, ‘Reads’, ‘ReadsPf’, ‘PercentGtQ30’, ‘Yield’, ‘CyclesError’, ‘PercentAligned’, ‘PercentAlignedDeviation’, ‘ErrorRate’, ‘ErrorRateDeviation’, ‘ErrorRate35’, ‘ErrorRate35Deviation’, ‘ErrorRate75’, ‘ErrorRate75Deviation’, ‘ErrorRate100’, ‘ErrorRate100Deviation’, ‘IntensityCycle1’, ‘IntensityCycle1Deviation’, ‘PhasingSlope’, ‘PhasingOffset’, ‘PrePhasingSlope’, ‘PrePhasingOffset’, ‘ClusterDensity’, ‘Occupancy’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_read_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_lines</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id3" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a read summary csv file into a list of dicts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>summary_lines</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of lines from a read summary csv file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of dicts containing the parsed read summary.
+Keys: [‘ReadNumber’, ‘IsIndexed’, ‘TotalCycles’, ‘YieldTotal’, ‘ProjectedTotalYield’, ‘PercentAligned’, ‘ErrorRate’, ‘IntensityCycle1’, ‘PercentGtQ30’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[dict[str, object]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_read_summary_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">read_summary_line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id4" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a line from a read summary csv file into a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>read_summary_line</strong> (<em>str</em>) – A line from a read summary csv file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict containing the parsed read summary line.
+Keys: [‘ReadNumber’, ‘IsIndexed’, ‘TotalCycles’, ‘YieldTotal’, ‘ProjectedTotalYield’, ‘PercentAligned’, ‘ErrorRate’, ‘IntensityCycle1’, ‘PercentGtQ30’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_run_parameters_xml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_parameters_xml_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id5" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a run parameters xml file into a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_parameters_xml_path</strong> (<em>str</em>) – The path to the run parameters xml file.</p></li>
+<li><p><strong>instrument_type</strong> (<em>str</em>) – The instrument type. One of [‘miseq’, ‘nextseq’].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict containing the parsed run parameters. Keys: [‘flowcell_version’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id6">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.parsers.</span></span><span class="sig-name descname"><span class="pre">parse_run_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_lines</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id6" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a run stats csv file into a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>summary_lines</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of lines from a run stats csv file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dict containing the parsed run stats. Keys: [‘PercentGtQ30’, ‘ProjectedTotalYield’, ‘YieldTotal’, ‘ErrorRate’, ‘PercentAligned’, ‘Occupancy’, ‘Reads’]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Dan Fornika.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
