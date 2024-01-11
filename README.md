@@ -34,29 +34,26 @@ This tool takes a single config file, in JSON format, with the following structu
 	    "metric": "ErrorRate",
 	    "threshold": 0.3,
 	    "pass_above_or_below": "below",
-	    "run_type": "MiSeq"
+	    "instrument_type": "MiSeq"
 	},
 	{
 	    "metric": "ErrorRate",
 	    "threshold": 0.3,
 	    "pass_above_or_below": "below",
-	    "run_type": "NextSeq"
+	    "instrument_type": "NextSeq"
 	},
 	{
 	    "metric": "PercentGtQ30",
 	    "threshold": 0.75,
-	    "pass_above_or_below": "above",
-	    "run_type": "MiSeq"
-	},
-	{
-	    "metric": "PercentGtQ30",
-	    "threshold": 0.75,
-	    "pass_above_or_below": "above",
-	    "run_type": "NextSeq"
+	    "pass_above_or_below": "above"
 	}
     ]
 }
 ```
+
+Note that the keys `instrument_type` and `flowcell_version` are optional for each threshold. If included, they will only be applied to runs matching those values.
+The only supported instrument types are `MiSeq` and `NextSeq`. If those keys are not included, the threshold will be applied to all runs regardless of instrument
+type or flowcell version.
 
 # Outputs
 
