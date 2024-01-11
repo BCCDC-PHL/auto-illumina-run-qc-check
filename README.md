@@ -13,7 +13,13 @@ cd auto-illumina-run-qc-check
 Create a conda env, including python (>3.5,<3.11) and pip:
 
 ```
-conda create -n auto-illumina-run-qc-check python=3.10 pip
+conda env create -f environment.yml -p ~/.conda/envs/auto-illumina-run-qc-check
+```
+
+...or with mamba:
+
+```
+mamba env create -f environment.yml -p ~/.conda/envs/auto-illumina-run-qc-check
 ```
 
 Activate the conda env
@@ -27,6 +33,14 @@ Use pip to install:
 ```
 pip install .
 ```
+
+If you're developing/editing the source code then you can install in 'editable' mode:
+
+```
+pip install -e .
+```
+
+This will allow any changes to the codebase to be made immediately reflected in the tool.
 
 # Usage
 Start the tool as follows:
