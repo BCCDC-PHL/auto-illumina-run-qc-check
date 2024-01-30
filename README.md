@@ -152,7 +152,6 @@ The metrics at the top-level of this file are available to use for making QC pas
 
 ```
 {
-  "SumSampleFastqFileSizesMb": 236267.27,
   "ErrorRateR1": 0.24,
   "PercentGtQ30R1": 91.76,
   "ErrorRateR2": 0.44,
@@ -342,7 +341,8 @@ The metrics at the top-level of this file are available to use for making QC pas
       "ClusterDensity": 4974000,
       "Occupancy": 96.48
     }
-  ]
+  ],
+  "SumSampleFastqFileSizesMb": 236267.27,
 }
 ```
 
