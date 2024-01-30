@@ -85,6 +85,11 @@ This tool takes a single config file, in JSON format, with the following structu
 	    "metric": "PercentGtQ30",
 	    "threshold": 0.75,
 	    "pass_above_or_below": "above"
+	},
+	{
+	    "metric": "SumSampleFastqFileSizesMb",
+	    "threshold": 100.0,
+	    "pass_above_or_below": "above"
 	}
     ]
 }
@@ -121,6 +126,13 @@ This tool will write a file named `qc_check_complete.json`, with the following f
       "threshold": 60.0,
       "pass_above_or_below": "above",
       "pass_fail": "PASS"
+    },
+    {
+      "metric": "SumSampleFastqFileSizesMb",
+      "value": 236267.27,
+      "threshold": 100.0,
+      "pass_above_or_below": "above",
+      "pass_fail": "PASS"
     }
   ],
   "overall_pass_fail": "PASS",
@@ -140,6 +152,7 @@ The metrics at the top-level of this file are available to use for making QC pas
 
 ```
 {
+  "SumSampleFastqFileSizesMb": 236267.27,
   "ErrorRateR1": 0.24,
   "PercentGtQ30R1": 91.76,
   "ErrorRateR2": 0.44,
