@@ -43,6 +43,7 @@
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 <li><a class="reference internal" href="#auto-illumina-run-qc-check-core">auto_illumina_run_qc_check.core</a><ul>
 <li><a class="reference internal" href="#auto_illumina_run_qc_check.core.find_run_dirs"><code class="docutils literal notranslate"><span class="pre">find_run_dirs()</span></code></a></li>
+<li><a class="reference internal" href="#auto_illumina_run_qc_check.core.get_sum_sample_fastq_file_sizes"><code class="docutils literal notranslate"><span class="pre">get_sum_sample_fastq_file_sizes()</span></code></a></li>
 <li><a class="reference internal" href="#auto_illumina_run_qc_check.core.qc_check"><code class="docutils literal notranslate"><span class="pre">qc_check()</span></code></a></li>
 <li><a class="reference internal" href="#auto_illumina_run_qc_check.core.scan"><code class="docutils literal notranslate"><span class="pre">scan()</span></code></a></li>
 </ul>
@@ -125,6 +126,23 @@
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Iterator[Optional[dict[str, str]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="auto_illumina_run_qc_check.core.get_sum_sample_fastq_file_sizes">
+<span class="sig-prename descclassname"><span class="pre">auto_illumina_run_qc_check.core.</span></span><span class="sig-name descname"><span class="pre">get_sum_sample_fastq_file_sizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#auto_illumina_run_qc_check.core.get_sum_sample_fastq_file_sizes" title="Permalink to this definition"></a></dt>
+<dd><p>Get the sum of all sample fastq file sizes in the run directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>run</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – Run directory. Keys: [‘sequencing_run_id’, ‘path’, ‘instrument_type’]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sum of all sample fastq file sizes in the run directory.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
