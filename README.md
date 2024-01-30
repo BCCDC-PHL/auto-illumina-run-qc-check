@@ -85,6 +85,11 @@ This tool takes a single config file, in JSON format, with the following structu
 	    "metric": "PercentGtQ30",
 	    "threshold": 0.75,
 	    "pass_above_or_below": "above"
+	},
+	{
+	    "metric": "SumSampleFastqFileSizesMb",
+	    "threshold": 100.0,
+	    "pass_above_or_below": "above"
 	}
     ]
 }
@@ -119,6 +124,13 @@ This tool will write a file named `qc_check_complete.json`, with the following f
       "metric": "PercentPf",
       "value": 77.4,
       "threshold": 60.0,
+      "pass_above_or_below": "above",
+      "pass_fail": "PASS"
+    },
+    {
+      "metric": "SumSampleFastqFileSizesMb",
+      "value": 236267.27,
+      "threshold": 100.0,
       "pass_above_or_below": "above",
       "pass_fail": "PASS"
     }
@@ -329,7 +341,8 @@ The metrics at the top-level of this file are available to use for making QC pas
       "ClusterDensity": 4974000,
       "Occupancy": 96.48
     }
-  ]
+  ],
+  "SumSampleFastqFileSizesMb": 236267.27,
 }
 ```
 

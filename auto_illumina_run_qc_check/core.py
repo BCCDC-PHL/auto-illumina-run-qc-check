@@ -77,6 +77,43 @@ def find_run_dirs(config, check_upload_complete=True):
                 yield None
 
 
+def get_sum_sample_fastq_file_sizes(run):
+    """
+    Get the sum of all sample fastq file sizes in the run directory.
+
+    :param run: Run directory. Keys: ['sequencing_run_id', 'path', 'instrument_type']
+    :type run: dict[str, str]
+    :return: Sum of all sample fastq file sizes in the run directory.
+    :rtype: float
+    """
+    sum_sample_fastq_file_sizes = 0.0
+    latest_fastq_path = None
+    if run['instrument_type'] == 'miseq':
+        fastq_paths_glob = os.path.join(run['path'], 'Alignment_*', '*', 'Fastq')
+        fastq_paths = glob.glob(fastq_paths_glob)
+        latest_fastq_path = sorted(fastq_paths)[-1]
+    elif run['instrument_type'] == 'nextseq':
+        fastq_paths_glob = os.path.join(run['path'], 'Analysis', '*', 'Data', 'fastq')
+        fastq_paths = glob.glob(fastq_paths_glob)
+        latest_fastq_path = sorted(fastq_paths)[-1]
+
+    if not latest_fastq_path:
+        logging.error(json.dumps({"event_type": "no_fastq_paths_found", "sequencing_run_id": run['sequencing_run_id']}))
+        return sum_sample_fastq_file_sizes
+
+    fastq_files_glob = os.path.join(latest_fastq_path, '*.f*q.gz')
+    fastq_files = glob.glob(fastq_files_glob)
+
+    for fastq_file in fastq_files:
+        file_basename = os.path.basename(fastq_file)
+        library_id = file_basename.split('_')[0]
+        if library_id != 'Undetermined':
+            file_size_mb = os.path.getsize(fastq_file) / 1024
+            sum_sample_fastq_file_sizes += file_size_mb
+
+    return sum_sample_fastq_file_sizes
+    
+
 def scan(config: dict[str, object]) -> Iterator[Optional[dict[str, object]]]:
     """
     Scanning involves looking for all existing runs and storing them to the database,
@@ -128,6 +165,8 @@ def qc_check(config, run):
     if qc_check_complete:
         summary_lines = interop_result.stdout.splitlines()
         qc_metrics = parsers.parse_interop_summary(summary_lines)
+        sum_sample_fastq_file_sizes = get_sum_sample_fastq_file_sizes(run)
+        qc_metrics['SumSampleFastqFileSizesMb'] = round(sum_sample_fastq_file_sizes, 2)
         qc_metrics_output_path = os.path.join(run['path'], run_id + '_qc_metrics.json')
         with open(qc_metrics_output_path, 'w') as f:
             json.dump(qc_metrics, f, indent=2)
