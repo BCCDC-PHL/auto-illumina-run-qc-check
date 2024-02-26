@@ -95,7 +95,8 @@ def get_sum_sample_fastq_file_sizes(run):
     elif run['instrument_type'] == 'nextseq':
         fastq_paths_glob = os.path.join(run['path'], 'Analysis', '*', 'Data', 'fastq')
         fastq_paths = glob.glob(fastq_paths_glob)
-        latest_fastq_path = sorted(fastq_paths)[-1]
+        if len(fastq_paths) > 0:
+            latest_fastq_path = sorted(fastq_paths)[-1]
 
     if not latest_fastq_path:
         logging.error(json.dumps({"event_type": "no_fastq_paths_found", "sequencing_run_id": run['sequencing_run_id']}))
