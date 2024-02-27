@@ -68,21 +68,32 @@ def main():
                 # Safe to quit after completing a qc check on a single run.
                 if quit_when_safe:
                     exit(0)
+
             scan_complete_timestamp = datetime.datetime.now()
             scan_duration_delta = scan_complete_timestamp - scan_start_timestamp
             scan_duration_seconds = scan_duration_delta.total_seconds()
-            logging.info(json.dumps({"event_type": "scan_complete", "scan_duration_seconds": scan_duration_seconds}))
-
-            # Safe to quit after completing a full scan.
-            if quit_when_safe:
-                exit(0)
-
             scan_interval = DEFAULT_SCAN_INTERVAL_SECONDS
             if "scan_interval_seconds" in config:
                 try:
                     scan_interval = float(str(config['scan_interval_seconds']))
                 except ValueError as e:
-                    scan_interval = DEFAULT_SCAN_INTERVAL_SECONDS
+                    logging.error(json.dumps({
+                        "event_type": "invalid_scan_interval_seconds",
+                        "scan_interval_seconds": config['scan_interval_seconds'],
+                    }))
+            next_scan_timestamp = scan_start_timestamp + datetime.timedelta(seconds=scan_interval)
+            logging.info(json.dumps({
+                "event_type": "scan_complete",
+                "scan_duration_seconds": scan_duration_seconds,
+                "scan_interval_seconds": scan_interval,
+                "timestamp_next_scan_start": next_scan_timestamp.isoformat(),
+            }))
+
+            # Safe to quit after completing a full scan.
+            if quit_when_safe:
+                exit(0)
+
+            
             time.sleep(scan_interval)
         except KeyboardInterrupt as e:
             logging.info(json.dumps({"event_type": "quit_when_safe_enabled"}))
