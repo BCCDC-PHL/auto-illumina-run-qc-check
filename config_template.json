@@ -28,6 +28,11 @@
 	    "flowcell_version": "2"
 	},
 	{
+	    "metric": "PercentAligned",
+	    "threshold": 0.0,
+	    "pass_above_or_below": "above",
+	},
+	{
 	    "metric": "PercentGtQ30",
 	    "threshold": 0.75,
 	    "pass_above_or_below": "above",

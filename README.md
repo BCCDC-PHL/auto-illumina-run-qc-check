@@ -87,6 +87,11 @@ This tool takes a single config file, in JSON format, with the following structu
 	    "pass_above_or_below": "above"
 	},
 	{
+	    "metric": "PercentAligned",
+	    "threshold": 0.0,
+	    "pass_above_or_below": "above"
+	},
+	{
 	    "metric": "SumSampleFastqFileSizesMb",
 	    "threshold": 100.0,
 	    "pass_above_or_below": "above"
