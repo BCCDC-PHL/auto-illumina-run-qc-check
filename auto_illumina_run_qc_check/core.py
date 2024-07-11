@@ -109,7 +109,7 @@ def get_sum_sample_fastq_file_sizes(run):
         file_basename = os.path.basename(fastq_file)
         library_id = file_basename.split('_')[0]
         if library_id != 'Undetermined':
-            file_size_mb = os.path.getsize(fastq_file) / 1024
+            file_size_mb = os.path.getsize(fastq_file) / (1024 * 1024)
             sum_sample_fastq_file_sizes += file_size_mb
 
     return sum_sample_fastq_file_sizes
