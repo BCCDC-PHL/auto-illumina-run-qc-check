@@ -11,9 +11,12 @@ setup(
     },
     scripts=[],
     package_data={
+        "auto_illumina_run_qc_check": ["templates/*.html"],
     },
     python_requires='>=3.5,<3.11',
     install_requires=[
+        'requests~=2.32',
+        'jinja2~=3.1',
     ],
     description='Automated checking of run-level QC metrics for illumina sequencing runs.',
     url='https://github.com/BCCDC-PHL/auto-illumina-run-qc-check',

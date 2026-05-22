@@ -29,4 +29,12 @@ def load_config(config_path: str) -> dict[str, object]:
             for row in reader:
                 config['projects'].append(row)
 
+    if 'notification' in config:
+        notification_system_config_file = config['notification'].get('system_config_file', None)
+        if notification_system_config_file and os.path.exists(notification_system_config_file):
+            with open(notification_system_config_file, 'r') as f:
+                notification_system_config = json.load(f)
+                for k, v in notification_system_config.items():
+                    config['notification'][k] = v
+
     return config

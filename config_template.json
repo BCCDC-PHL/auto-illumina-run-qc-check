@@ -1,6 +1,13 @@
 {
     "excluded_runs_list": "excluded_runs.csv",
     "scan_interval_seconds": 10,
+    "notification": {
+	"system_config_file": "/path/to/notification/config.json",
+	"recipient_email_addresses": [
+	    "someone@example.org"
+	],
+	"send_notification_emails": true
+    },
     "run_parent_dirs": [
 	"/path/to/M00123/23",
 	"/path/to/VH00123/23"

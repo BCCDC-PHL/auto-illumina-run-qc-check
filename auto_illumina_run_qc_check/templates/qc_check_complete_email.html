@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    h1, h2, h3 { color: #004a87; }
+    body { font-family: sans-serif; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1em;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5em;
+      text-align: left;
+    }
+    th {
+      color: #004a87;
+      background-color: #f2f2f2;
+    }
+    .qc-pass { color: #0c9261; font-weight: bold; }
+    .qc-warning { color: #f5ce42; font-weight: bold; }
+    .qc-fail { color: #df3023; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h2>Illumina Run QC Check: {{ sequencing_run_id }}</h2>
+
+  <p>
+    The automated QC check for sequencing run <tt>{{ sequencing_run_id }}</tt> has completed.
+  </p>
+
+  <h3>Run QC Status:</h3>
+
+  {% if overall_pass_fail == 'PASS' %}
+  <h1 class="qc-pass">
+    {% elif overall_pass_fail == 'FAIL' %}
+  <h1 class="qc-fail">
+  {% endif %}
+    {{ overall_pass_fail }}
+  </h1>
+  
+  <h3>Run-Level QC Metrics</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th style="text-align:right;">Value</th>
+        <th style="text-align:right;">Threshold</th>
+        <th >Pass/Fail</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for metric in checked_metrics %}
+      <tr>
+        <td>{{ metric.metric }}</td>
+	<td style="text-align:right;">{{ metric.value }}</td>
+	<td style="text-align:right;">{{ metric.threshold }}</td>
+        {% if metric.pass_fail == 'PASS' %}
+        <td class="qc-pass">
+          {% elif metric.pass_fail == 'FAIL' %}
+        <td class="qc-fail">
+        {% endif %}
+          {{ metric.pass_fail }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p>
+    Please contact the bioinformatics team if you have any questions.
+  </p>
+
+</body>
+</html>
