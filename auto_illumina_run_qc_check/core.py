@@ -27,8 +27,8 @@ def find_run_dirs(config, check_upload_complete=True):
     :return: Run directory. Keys: ['sequencing_run_id', 'path', 'instrument_type']
     :rtype: Iterator[Optional[dict[str, str]]]
     """
-    miseq_run_id_regex = "\d{6}_M\d{5}_\d+_\d{9}-[A-Z0-9]{5}"
-    nextseq_run_id_regex = "\d{6}_VH\d{5}_\d+_[A-Z0-9]{9}"
+    miseq_run_id_regex = "\\d{6}_M\\d{5}_\\d+_\\d{9}-[A-Z0-9]{5}"
+    nextseq_run_id_regex = "\\d{6}_VH\\d{5}_\\d+_[A-Z0-9]{9}"
     run_parent_dirs = config['run_parent_dirs']
 
     for run_parent_dir in run_parent_dirs:
@@ -226,5 +226,6 @@ def qc_check(config, run):
         if  notification_emails_enabled:
             try:
                 send_notification_email(Path(qc_check_complete_output_path), config['notification'])
+                logging.info(json.dumps({"event_type": "send_notification_email_complete", "sequencing_run_id": run_id, "qc_check_result": qc_check_result.get('overall_pass_fail', "Unknown")}))
             except Exception as e:
                 logging.error(json.dumps({"event_type": "send_notification_email_failed", "sequencing_run_id": run_id, "exception": str(e)}))
