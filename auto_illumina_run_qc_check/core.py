@@ -11,8 +11,10 @@ import time
 import uuid
 
 from typing import Iterator, Optional
+from pathlib import Path
 
 import auto_illumina_run_qc_check.parsers as parsers
+from auto_illumina_run_qc_check.notification import send_notification_email
 
 def find_run_dirs(config, check_upload_complete=True):
     """
@@ -25,8 +27,8 @@ def find_run_dirs(config, check_upload_complete=True):
     :return: Run directory. Keys: ['sequencing_run_id', 'path', 'instrument_type']
     :rtype: Iterator[Optional[dict[str, str]]]
     """
-    miseq_run_id_regex = "\d{6}_M\d{5}_\d+_\d{9}-[A-Z0-9]{5}"
-    nextseq_run_id_regex = "\d{6}_VH\d{5}_\d+_[A-Z0-9]{9}"
+    miseq_run_id_regex = "\\d{6}_M\\d{5}_\\d+_\\d{9}-[A-Z0-9]{5}"
+    nextseq_run_id_regex = "\\d{6}_VH\\d{5}_\\d+_[A-Z0-9]{9}"
     run_parent_dirs = config['run_parent_dirs']
 
     for run_parent_dir in run_parent_dirs:
@@ -152,9 +154,11 @@ def qc_check(config, run):
 
     logging.info(json.dumps({"event_type": "qc_check_started", "sequencing_run_id": run_id, "interop_command": " ".join(interop_command)}))
     timestamp_qc_check_started = datetime.datetime.now().isoformat()
-    
+    timestamp_qc_check_completed = None
+
+    qc_check_complete = False
+    interop_result = None
     try:
-        qc_check_complete = False
         interop_result = subprocess.run(interop_command, capture_output=True, check=True, text=True)
         if interop_result.returncode == 0:
             qc_check_complete = True
@@ -163,7 +167,7 @@ def qc_check(config, run):
     except subprocess.CalledProcessError as e:
         logging.error(json.dumps({"event_type": "qc_check_failed", "sequencing_run_id": run_id, "interop_command": " ".join(interop_command)}))
 
-    if qc_check_complete:
+    if qc_check_complete and interop_result:
         summary_lines = interop_result.stdout.splitlines()
         qc_metrics = parsers.parse_interop_summary(summary_lines)
         sum_sample_fastq_file_sizes = get_sum_sample_fastq_file_sizes(run)
@@ -217,3 +221,11 @@ def qc_check(config, run):
             json.dump(qc_check_result, f, indent=2)
             f.write("\n")
         logging.info(json.dumps({"event_type": "qc_check_complete", "sequencing_run_id": run_id, "qc_check_result": qc_check_result['overall_pass_fail']}))
+
+        notification_emails_enabled = 'send_notification_emails' in config.get('notification', {}) and config['notification']['send_notification_emails']
+        if  notification_emails_enabled:
+            try:
+                send_notification_email(Path(qc_check_complete_output_path), config['notification'])
+                logging.info(json.dumps({"event_type": "send_notification_email_complete", "sequencing_run_id": run_id, "qc_check_result": qc_check_result.get('overall_pass_fail', "Unknown")}))
+            except Exception as e:
+                logging.error(json.dumps({"event_type": "send_notification_email_failed", "sequencing_run_id": run_id, "exception": str(e)}))

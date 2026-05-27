@@ -104,6 +104,36 @@ Note that the keys `instrument_type` and `flowcell_version` are optional for eac
 The only supported instrument types are `MiSeq` and `NextSeq`. If those keys are not included, the threshold will be applied to all runs regardless of instrument
 type or flowcell version.
 
+## Notification Emails
+
+Notification emails can be enabled by adding the following `"notification"` section to the config:
+
+```json
+{
+    ...
+    "notification": {
+        "system_config_file": "/path/to/notification/config.json",
+        "recipient_email_addresses": [
+            "someone@example.org"
+        ],
+        "send_notification_emails": true
+    },
+    ...
+}
+```
+
+...where `"system_config_file"` points to a json file with the following structure:
+
+```json
+{
+    "auth_url": "",
+    "email_url": "",
+    "client_id": "",
+    "client_secret": "",
+     "sender_email": ""
+}
+```
+
 # Outputs
 
 This tool will write a file named `qc_check_complete.json`, with the following format:
