@@ -17,6 +17,7 @@ from importlib.resources import files
 
 from auto_illumina_run_qc_check.config import load_config
 
+import auto_illumina_run_qc_check.instrument as instrument
 import auto_illumina_run_qc_check.samplesheet as samplesheet
 
 
@@ -102,8 +103,13 @@ def _collect_email_data(run_dir: Path, qc_check_complete_filename: str = "qc_che
     with open(qc_check_complete_path, 'r') as f:
         email_data = json.load(f)
 
+    run_id = run_dir.name
     samplesheet_path = samplesheet.find_samplesheet_path(run_dir)
-    print(samplesheet_path)
+    instrument_type = instrument.determine_instrument_type(run_id)
+
+    if samplesheet_path and os.path.exists(samplesheet_path):
+        parsed_samplesheet = samplesheet.parse_samplesheet(samplesheet_path, instrument_type)
+    print(json.dumps(parsed_samplesheet))
     exit()
 
     return email_data

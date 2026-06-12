@@ -14,30 +14,9 @@ from typing import Iterator, Optional
 from pathlib import Path
 
 import auto_illumina_run_qc_check.parsers as parsers
+import auto_illumina_run_qc_check.instrument as instrument
+
 from auto_illumina_run_qc_check.notification import send_notification_email
-
-MISEQ_RUN_ID_REGEX = "\\d{6}_M\\d{5}_\\d+_\\d{9}-[A-Z0-9]{5}"
-NEXTSEQ_RUN_ID_REGEX = "\\d{6}_VH\\d{5}_\\d+_[A-Z0-9]{9}"
-i100_RUN_ID_REGEX = "\\d{8}_SH\\d{5}_\\d+_[A-Z0-9]{10}-[A-Z0-9]{3}"
-
-
-def determine_instrument_type(run_id: str):
-    """
-    """
-    instrument_type = 'unknown'
-
-    matches_miseq_regex = re.match(MISEQ_RUN_ID_REGEX, run_id)
-    matches_nextseq_regex = re.match(NEXTSEQ_RUN_ID_REGEX, run_id)
-    matches_i100_regex = re.match(i100_RUN_ID_REGEX, run_id)
-    
-    if matches_miseq_regex:
-        instrument_type = 'miseq'
-    elif matches_nextseq_regex:
-        instrument_type = 'nextseq'
-    elif matches_i100_regex:
-        instrument_type = 'i100'
-
-    return instrument_type
 
 
 def find_run_dirs(config, check_upload_complete=True):
@@ -60,7 +39,7 @@ def find_run_dirs(config, check_upload_complete=True):
 
         for subdir in subdirs:
             run_id = subdir.name
-            instrument_type = determine_instrument_type(run_id)
+            instrument_type = instrument.determine_instrument_type(run_id)
             
 
             run_parameters = {}
