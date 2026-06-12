@@ -16,6 +16,30 @@ from pathlib import Path
 import auto_illumina_run_qc_check.parsers as parsers
 from auto_illumina_run_qc_check.notification import send_notification_email
 
+MISEQ_RUN_ID_REGEX = "\\d{6}_M\\d{5}_\\d+_\\d{9}-[A-Z0-9]{5}"
+NEXTSEQ_RUN_ID_REGEX = "\\d{6}_VH\\d{5}_\\d+_[A-Z0-9]{9}"
+i100_RUN_ID_REGEX = "\\d{8}_SH\\d{5}_\\d+_[A-Z0-9]{10}-[A-Z0-9]{3}"
+
+
+def determine_instrument_type(run_id: str):
+    """
+    """
+    instrument_type = 'unknown'
+
+    matches_miseq_regex = re.match(MISEQ_RUN_ID_REGEX, run_id)
+    matches_nextseq_regex = re.match(NEXTSEQ_RUN_ID_REGEX, run_id)
+    matches_i100_regex = re.match(i100_RUN_ID_REGEX, run_id)
+    
+    if matches_miseq_regex:
+        instrument_type = 'miseq'
+    elif matches_nextseq_regex:
+        instrument_type = 'nextseq'
+    elif matches_i100_regex:
+        instrument_type = 'i100'
+
+    return instrument_type
+
+
 def find_run_dirs(config, check_upload_complete=True):
     """
     Find sequencing run directories under the 'run_parent_dirs' listed in the config.
@@ -27,8 +51,8 @@ def find_run_dirs(config, check_upload_complete=True):
     :return: Run directory. Keys: ['sequencing_run_id', 'path', 'instrument_type']
     :rtype: Iterator[Optional[dict[str, str]]]
     """
-    miseq_run_id_regex = "\\d{6}_M\\d{5}_\\d+_\\d{9}-[A-Z0-9]{5}"
-    nextseq_run_id_regex = "\\d{6}_VH\\d{5}_\\d+_[A-Z0-9]{9}"
+    
+
     run_parent_dirs = config['run_parent_dirs']
 
     for run_parent_dir in run_parent_dirs:
@@ -36,13 +60,8 @@ def find_run_dirs(config, check_upload_complete=True):
 
         for subdir in subdirs:
             run_id = subdir.name
-            matches_miseq_regex = re.match(miseq_run_id_regex, run_id)
-            matches_nextseq_regex = re.match(nextseq_run_id_regex, run_id)
-            instrument_type = 'unknown'
-            if matches_miseq_regex:
-                instrument_type = 'miseq'
-            elif matches_nextseq_regex:
-                instrument_type = 'nextseq'
+            instrument_type = determine_instrument_type(run_id)
+            
 
             run_parameters = {}
             run_parameters_path = os.path.join(subdir, 'RunParameters.xml')
@@ -58,12 +77,12 @@ def find_run_dirs(config, check_upload_complete=True):
 
             conditions_checked = {
                 "is_directory": subdir.is_dir(),
-                "matches_illumina_run_id_format": ((matches_miseq_regex is not None) or
-                                                   (matches_nextseq_regex is not None)),
+                "supported_run_id_format": instrument_type != "unknown",
                 "upload_complete": upload_complete,
                 "qc_check_not_complete": not qc_check_complete,
                 "not_excluded": not_excluded,
             }
+            logging.info(json.dumps({"run_id": run_id, "conditions_checked": conditions_checked}))
 
             conditions_met = list(conditions_checked.values())
             run = {}
