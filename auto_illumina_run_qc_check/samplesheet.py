@@ -27,7 +27,6 @@ def find_samplesheet_path(run_dir: Path) -> Optional[Path]:
     else:
         return samplesheet_path
 
-    print(instrument_type)
     samplesheets_found = glob.glob(samplesheet_paths_glob)
     if len(samplesheets_found) == 0:
         return None
@@ -53,7 +52,7 @@ def _parse_samplesheet_miseq(samplesheet_path):
     """
     target_section_tag = "[Data]"
     project_id_field = "Sample_Project"
-    parsed_samplesheet = {}
+    parsed_samplesheet = {'num_samples_by_project_id': {}}
 
     with open(samplesheet_path, 'r', newline="", encoding="utf-8") as f:
         for line in f:
@@ -62,8 +61,14 @@ def _parse_samplesheet_miseq(samplesheet_path):
         bounded_stream = _read_until_next_section(f)
         reader = csv.DictReader(bounded_stream)
         for row in reader:
-            print(json.dumps(row))
-            exit()
+            project_id = row.get(project_id_field, None)
+            if project_id:
+                if project_id not in parsed_samplesheet['num_samples_by_project_id']:
+                    parsed_samplesheet['num_samples_by_project_id'][project_id] = 1
+                else:
+                    parsed_samplesheet['num_samples_by_project_id'][project_id] += 1
+
+    return parsed_samplesheet
 
 
 def _parse_samplesheet_nextseq(samplesheet_path):
@@ -71,13 +76,23 @@ def _parse_samplesheet_nextseq(samplesheet_path):
     """
     target_section_tag = "[Cloud_Data]"
     project_id_field = "ProjectName"
-    parsed_samplesheet = {}
+    parsed_samplesheet = {'num_samples_by_project_id': {}}
 
     with open(samplesheet_path, 'r', newline="", encoding="utf-8") as f:
         for line in f:
             if line.strip().startswith(target_section_tag):
                 break
-    
+        bounded_stream = _read_until_next_section(f)
+        reader = csv.DictReader(bounded_stream)
+        for row in reader:
+            project_id = row.get(project_id_field, None)
+            if project_id:
+                if project_id not in parsed_samplesheet['num_samples_by_project_id']:
+                    parsed_samplesheet['num_samples_by_project_id'][project_id] = 1
+                else:
+                    parsed_samplesheet['num_samples_by_project_id'][project_id] += 1
+
+    return parsed_samplesheet
 
 
 def _parse_samplesheet_i100(samplesheet_path):
@@ -85,13 +100,23 @@ def _parse_samplesheet_i100(samplesheet_path):
     """
     target_section_tag = "[Cloud_Data]"
     project_id_field = "ProjectName"
-    parsed_samplesheet = {}
+    parsed_samplesheet = {'num_samples_by_project_id': {}}
 
     with open(samplesheet_path, 'r', newline="", encoding="utf-8") as f:
         for line in f:
             if line.strip().startswith(target_section_tag):
                 break
-        
+        bounded_stream = _read_until_next_section(f)
+        reader = csv.DictReader(bounded_stream)
+        for row in reader:
+            project_id = row.get(project_id_field, None)
+            if project_id:
+                if project_id not in parsed_samplesheet['num_samples_by_project_id']:
+                    parsed_samplesheet['num_samples_by_project_id'][project_id] = 1
+                else:
+                    parsed_samplesheet['num_samples_by_project_id'][project_id] += 1
+
+    return parsed_samplesheet
 
     
 def parse_samplesheet(samplesheet_path: Path, instrument_type: str):

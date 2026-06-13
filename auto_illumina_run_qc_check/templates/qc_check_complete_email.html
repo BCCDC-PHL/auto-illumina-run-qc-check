@@ -70,6 +70,24 @@
     </tbody>
   </table>
 
+  <h3>Num. Samples By Project ID</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Project ID</th>
+        <th style="text-align:right;">Num. Samples</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for project_id, num_samples in num_samples_by_project_id.items() %}
+      <tr>
+	<td>{{ project_id }}</td>
+	<td>{{ num_samples }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
   <p>
     Please contact the bioinformatics team if you have any questions.
   </p>

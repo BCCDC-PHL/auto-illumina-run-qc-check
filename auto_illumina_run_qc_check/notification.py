@@ -98,19 +98,21 @@ def _prepare_email_body(email_data: dict, notification_config: dict):
 def _collect_email_data(run_dir: Path, qc_check_complete_filename: str = "qc_check_complete.json"):
     """
     """
-    email_data = {}
+    email_data = {'num_samples_by_project_id': {}}
     qc_check_complete_path = run_dir / qc_check_complete_filename
     with open(qc_check_complete_path, 'r') as f:
         email_data = json.load(f)
 
     run_id = run_dir.name
+    if 'sequencing_run_id' not in email_data:
+        email_data['sequencing_run_id'] = run_id
+
     samplesheet_path = samplesheet.find_samplesheet_path(run_dir)
     instrument_type = instrument.determine_instrument_type(run_id)
 
     if samplesheet_path and os.path.exists(samplesheet_path):
         parsed_samplesheet = samplesheet.parse_samplesheet(samplesheet_path, instrument_type)
-    print(json.dumps(parsed_samplesheet))
-    exit()
+        email_data['num_samples_by_project_id'] = parsed_samplesheet.get('num_samples_by_project_id', {})
 
     return email_data
     
