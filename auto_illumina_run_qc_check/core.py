@@ -61,7 +61,7 @@ def find_run_dirs(config, check_upload_complete=True):
                 "qc_check_not_complete": not qc_check_complete,
                 "not_excluded": not_excluded,
             }
-            logging.info(json.dumps({"run_id": run_id, "conditions_checked": conditions_checked}))
+            logging.debug(json.dumps({"run_id": run_id, "conditions_checked": conditions_checked}))
 
             conditions_met = list(conditions_checked.values())
             run = {}
