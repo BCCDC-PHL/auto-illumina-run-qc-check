@@ -17,6 +17,9 @@ from importlib.resources import files
 
 from auto_illumina_run_qc_check.config import load_config
 
+import auto_illumina_run_qc_check.instrument as instrument
+import auto_illumina_run_qc_check.samplesheet as samplesheet
+
 
 def _get_access_token(email_config: dict):
     """
@@ -92,17 +95,29 @@ def _prepare_email_body(email_data: dict, notification_config: dict):
     return email_request_body
 
 
-def _collect_email_data(qc_check_complete_path):
+def _collect_email_data(run_dir: Path, qc_check_complete_filename: str = "qc_check_complete.json"):
     """
     """
-    email_data = {}
+    email_data = {'num_samples_by_project_id': {}}
+    qc_check_complete_path = run_dir / qc_check_complete_filename
     with open(qc_check_complete_path, 'r') as f:
         email_data = json.load(f)
+
+    run_id = run_dir.name
+    if 'sequencing_run_id' not in email_data:
+        email_data['sequencing_run_id'] = run_id
+
+    samplesheet_path = samplesheet.find_samplesheet_path(run_dir)
+    instrument_type = instrument.determine_instrument_type(run_id)
+
+    if samplesheet_path and os.path.exists(samplesheet_path):
+        parsed_samplesheet = samplesheet.parse_samplesheet(samplesheet_path, instrument_type)
+        email_data['num_samples_by_project_id'] = parsed_samplesheet.get('num_samples_by_project_id', {})
 
     return email_data
     
 
-def send_notification_email(qc_check_complete_path: Path, notification_config: dict):
+def send_notification_email(run_dir: Path, notification_config: dict):
     """
     Collect relevant data from an analysis output dir
     """
@@ -110,7 +125,7 @@ def send_notification_email(qc_check_complete_path: Path, notification_config: d
     if not access_token:
         return None
 
-    email_info = _collect_email_data(qc_check_complete_path)
+    email_info = _collect_email_data(run_dir)
     sequencing_run_id = email_info['sequencing_run_id']
     email_body = _prepare_email_body(email_info, notification_config)
         
@@ -132,13 +147,13 @@ def main(args):
         logging.error("Failed to load notification config")
         exit(-1)
     
-    send_notification_email(args.qc_check_complete_file, config['notification'])
-    logging.info(json.dumps({"event_type": "email_notification_sent", "qc_check_complete_file": os.path.abspath(args.qc_check_complete_file)}))
+    send_notification_email(args.run_dir, config['notification'])
+    logging.info(json.dumps({"event_type": "email_notification_sent", "run_dir": os.path.abspath(args.run_dir)}))
     
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--qc-check-complete-file')
-    parser.add_argument('-c', '--config')
+    parser.add_argument('-d', '--run-dir', type=Path)
+    parser.add_argument('-c', '--config', type=Path)
     args = parser.parse_args()
     main(args)
