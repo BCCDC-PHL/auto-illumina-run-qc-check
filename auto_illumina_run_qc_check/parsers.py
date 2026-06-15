@@ -33,6 +33,7 @@ def parse_read_summary_line(read_summary_line):
 
     level_to_read_number = {
         'Read 1': 1,
+        'Read 1 (I)': 1,
         'Read 2': 2,
         'Read 2 (I)': 2,
         'Read 3 (I)': 3,
@@ -331,6 +332,7 @@ def parse_run_stats(summary_lines):
 
     level_to_read_number = {
         'Read 1': 1,
+        'Read 1 (I)': 1,
         'Read 2': 2,
         'Read 2 (I)': 2,
         'Read 3 (I)': 3,
