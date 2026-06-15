@@ -97,6 +97,11 @@ def get_sum_sample_fastq_file_sizes(run):
         fastq_paths = glob.glob(fastq_paths_glob)
         if len(fastq_paths) > 0:
             latest_fastq_path = sorted(fastq_paths)[-1]
+    elif run['instrument_type'] == 'i100':
+        fastq_paths_glob = os.path.join(run['path'], 'Analysis', '*', 'Data', 'BCLConvert', 'fastq')
+        fastq_paths = glob.glob(fastq_paths_glob)
+        if len(fastq_paths) > 0:
+            latest_fastq_path = sorted(fastq_paths)[-1]
 
     if not latest_fastq_path:
         logging.error(json.dumps({"event_type": "no_fastq_paths_found", "sequencing_run_id": run['sequencing_run_id']}))
@@ -143,6 +148,7 @@ def qc_check(config, run):
     :rtype: None
     """
     run_id = run['sequencing_run_id']
+    run_dir = Path(run['path'])
 
     interop_command = [
         'interop_summary',
@@ -223,7 +229,7 @@ def qc_check(config, run):
         notification_emails_enabled = 'send_notification_emails' in config.get('notification', {}) and config['notification']['send_notification_emails']
         if  notification_emails_enabled:
             try:
-                send_notification_email(Path(qc_check_complete_output_path), config['notification'])
+                send_notification_email(run_dir, config['notification'])
                 logging.info(json.dumps({"event_type": "send_notification_email_complete", "sequencing_run_id": run_id, "qc_check_result": qc_check_result.get('overall_pass_fail', "Unknown")}))
             except Exception as e:
                 logging.error(json.dumps({"event_type": "send_notification_email_failed", "sequencing_run_id": run_id, "exception": str(e)}))
