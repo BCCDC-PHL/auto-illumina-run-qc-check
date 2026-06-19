@@ -1,3 +1,5 @@
+import os
+import sys
 import sphinx_rtd_theme
 
 # Configuration file for the Sphinx documentation builder.
@@ -9,13 +11,17 @@ import sphinx_rtd_theme
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'BCCDC-PHL Auto Illumina Run QC Check'
-copyright = '2023, Dan Fornika'
+copyright = '2026, BCCDC Public Health Laboratory'
 author = 'Dan Fornika'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc', 'sphinx_rtd_theme',]
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx_rtd_theme',
+    'sphinx_autodoc_typehints',
+]
 
 templates_path = ['_templates']
 exclude_patterns = []
@@ -27,3 +33,10 @@ exclude_patterns = []
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+
+# -- Options for Type Hints --------------------------------------------------
+# https://github.com/tox-dev/sphinx-autodoc-typehints
+
+typehints_fully_qualified = False  # Keeps types short (e.g., 'Config' instead of 'module.Config')
+typehints_use_rtype = True         # Puts the return type in a separate :rtype: line
+always_document_param_types = True # Documents type even if the param descriptio

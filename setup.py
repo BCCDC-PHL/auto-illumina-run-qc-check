@@ -2,7 +2,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name='auto-illumina-run-qc-check',
-    version='0.2.0',
+    version='0.2.1',
     packages=find_namespace_packages(),
     entry_points={
         "console_scripts": [
@@ -13,7 +13,7 @@ setup(
     package_data={
         "auto_illumina_run_qc_check": ["templates/*.html"],
     },
-    python_requires='>=3.5',
+    python_requires='>=3.11',
     install_requires=[
         'requests~=2.32',
         'jinja2~=3.1',

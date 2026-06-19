@@ -7,6 +7,7 @@ import os
 import uuid
 
 from pathlib import Path
+from typing import Optional
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -16,21 +17,21 @@ from jinja2 import BaseLoader
 from importlib.resources import files
 
 from auto_illumina_run_qc_check.config import load_config
+from auto_illumina_run_qc_check.logging_config import configure_logging
 
 import auto_illumina_run_qc_check.instrument as instrument
 import auto_illumina_run_qc_check.samplesheet as samplesheet
 
+log = logging.getLogger(__name__)
 
-def _get_access_token(email_config: dict):
+def _get_access_token(email_config: dict) -> Optional[str]:
     """
     Get an access token from the MCMS auth service.
 
     :param config: A dict containing the MCMS auth service URL, client ID, and client secret.
                    Required keys are: ['auth_url', 'client_id', 'client_secret'].
     :type config: dict
-    :return: A dict containing the access token and other info.
-             Keys are: ['access_token', 'token_type', 'expires_in', 'timestamp_token_received'].
-    :rtype: dict
+    :return: The access token, or None if auth fails.
     """
     auth_url = email_config['auth_url']
     client_id = email_config['client_id']
@@ -52,11 +53,11 @@ def _get_access_token(email_config: dict):
         timestamp = datetime.datetime.now().isoformat()
         response_json['timestamp_token_received'] = timestamp
     else:
-        logging.error(json.dumps({
+        log.error({
             'event_type': 'email_authentication_failed',
             'status_code': response.status_code,
             'message': response.text
-        }))
+        })
         return None
 
     access_token = response_json['access_token']
@@ -64,8 +65,13 @@ def _get_access_token(email_config: dict):
     return access_token
 
 
-def _prepare_email_body(email_data: dict, notification_config: dict):
+def _prepare_email_body(email_data: dict, notification_config: dict) -> dict:
     """
+    Prepare the email request body, prior to calling notification API.
+
+    :param email_data: Data needed to render HTML template
+    :param notification_config: Configuration for connecting to notification API. Required keys: ['sender_email', 'recipient_email_addresses']
+    :return: The body for the POST request to the notification API.
     """
     message_id = str(uuid.uuid4())
     sender_email = notification_config['sender_email']
@@ -95,8 +101,13 @@ def _prepare_email_body(email_data: dict, notification_config: dict):
     return email_request_body
 
 
-def _collect_email_data(run_dir: Path, qc_check_complete_filename: str = "qc_check_complete.json"):
+def _collect_email_data(run_dir: Path, qc_check_complete_filename: str = "qc_check_complete.json") -> dict:
     """
+    Collect data needed for populating the email template.
+
+    :param run_dir: Path to the sequencing run directory
+    :param qc_check_complete_filename: The filename of the QC Check Complete file to look for (default: `qc_check_complete.json`)
+    :return: The collected data
     """
     email_data = {'num_samples_by_project_id': {}}
     qc_check_complete_path = run_dir / qc_check_complete_filename
@@ -117,17 +128,23 @@ def _collect_email_data(run_dir: Path, qc_check_complete_filename: str = "qc_che
     return email_data
     
 
-def send_notification_email(run_dir: Path, notification_config: dict):
+def send_notification_email(run_dir: os.PathLike, notification_config: dict) -> Optional[dict]:
     """
-    Collect relevant data from an analysis output dir
+    Collect relevant data from an analysis output dir and send
+
+    :param run_dir: Sequencing run output dir (must include a "qc_check_complete.json" file).
+    :param notification_config: Notification-related config. Required keys: ['auth_url', 'email_url', 'client_id', 'client_secret', 'sender_email']
+    :return: Response data, or `None` if authentication fails.
     """
     access_token = _get_access_token(notification_config)
     if not access_token:
         return None
 
-    email_info = _collect_email_data(run_dir)
-    sequencing_run_id = email_info['sequencing_run_id']
-    email_body = _prepare_email_body(email_info, notification_config)
+    email_data = _collect_email_data(run_dir)
+    log.debug({"event_type": "collected_email_data", "email_data": email_data})
+
+    sequencing_run_id = email_data['sequencing_run_id']
+    email_body = _prepare_email_body(email_data, notification_config)
         
     email_url = notification_config['email_url']
     headers = {
@@ -137,23 +154,23 @@ def send_notification_email(run_dir: Path, notification_config: dict):
     }
 
     response = requests.post(email_url, data=json.dumps(email_body), headers=headers)
-    
-    # print(json.dumps(response.json(), indent=2))
+    response_json = response.json()
+
+    return response_json
 
 
 def main(args):
+    configure_logging(args.log_level)
     config = load_config(args.config)
-    if 'notification' not in config:
-        logging.error("Failed to load notification config")
-        exit(-1)
-    
-    send_notification_email(args.run_dir, config['notification'])
-    logging.info(json.dumps({"event_type": "email_notification_sent", "run_dir": os.path.abspath(args.run_dir)}))
+    response_data = send_notification_email(args.run_dir, config.notification)
+    log.debug(response_data)
+    log.info({"event_type": "email_notification_sent", "run_dir": os.path.abspath(args.run_dir)})
     
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--run-dir', type=Path)
     parser.add_argument('-c', '--config', type=Path)
+    parser.add_argument('--log-level', type=str, default="info")
     args = parser.parse_args()
     main(args)

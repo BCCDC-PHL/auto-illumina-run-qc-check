@@ -7,11 +7,17 @@ import os
 from pathlib import Path
 
 import auto_illumina_run_qc_check.instrument as instrument
+from auto_illumina_run_qc_check.model import InstrumentType
 
-from typing import Optional
+from typing import Optional, Iterator
 
 def find_samplesheet_path(run_dir: Path) -> Optional[Path]:
     """
+    Given a run directory path, find the path to the SampleSheet.csv file that can be used
+    to summarize num samples by project ID.
+    
+    :param run_dir: Path to the run directory
+    :return: Path to the SampleSheet.csv file, or None if not found.
     """
     samplesheet_path = None
     run_id = run_dir.name
@@ -37,18 +43,20 @@ def find_samplesheet_path(run_dir: Path) -> Optional[Path]:
 
     return samplesheet_path
 
-def _read_until_next_section(file_iterator):
+def _read_until_next_section(file_iterator: Iterator) -> Iterator[str]:
     """
+    Read lines until we find a [tag]
     """
     for line in file_iterator:
         # If we hit a new section tag, stop yielding lines
-        if line.strip().startswith("[") and line.strip().endswith("]"):
+        if line.strip().startswith("[") and line.strip().rstrip(',').endswith("]"):
             break
         yield line
 
 
-def _parse_samplesheet_miseq(samplesheet_path):
+def _parse_samplesheet_miseq(samplesheet_path: Path) -> dict:
     """
+    Parse a MiSeq SampleSheet to a dict.
     """
     target_section_tag = "[Data]"
     project_id_field = "Sample_Project"
@@ -71,8 +79,9 @@ def _parse_samplesheet_miseq(samplesheet_path):
     return parsed_samplesheet
 
 
-def _parse_samplesheet_nextseq(samplesheet_path):
+def _parse_samplesheet_nextseq(samplesheet_path: Path) -> dict:
     """
+    Parse a NextSeq SampleSheet to a dict.
     """
     target_section_tag = "[Cloud_Data]"
     project_id_field = "ProjectName"
@@ -95,8 +104,9 @@ def _parse_samplesheet_nextseq(samplesheet_path):
     return parsed_samplesheet
 
 
-def _parse_samplesheet_i100(samplesheet_path):
+def _parse_samplesheet_i100(samplesheet_path: Path) -> dict:
     """
+    Parse an i100 SampleSheet to a dict.
     """
     target_section_tag = "[Cloud_Data]"
     project_id_field = "ProjectName"
@@ -119,8 +129,9 @@ def _parse_samplesheet_i100(samplesheet_path):
     return parsed_samplesheet
 
     
-def parse_samplesheet(samplesheet_path: Path, instrument_type: str):
+def parse_samplesheet(samplesheet_path: Path, instrument_type: InstrumentType):
     """
+    Parse a SampleSheet, given the path to the SampleSheet file and the Instrument type.
     """
     parsed_samplesheet = {}
     if instrument_type == 'nextseq':

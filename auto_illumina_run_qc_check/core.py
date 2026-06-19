@@ -16,25 +16,22 @@ from pathlib import Path
 import auto_illumina_run_qc_check.parsers as parsers
 import auto_illumina_run_qc_check.instrument as instrument
 
+from auto_illumina_run_qc_check.model import Config
 from auto_illumina_run_qc_check.notification import send_notification_email
 
+log = logging.getLogger(__name__)
 
-def find_run_dirs(config, check_upload_complete=True):
+
+def find_run_dirs(config: Config, check_upload_complete: bool=True) -> Iterator[Optional[dict]]:
     """
     Find sequencing run directories under the 'run_parent_dirs' listed in the config.
 
     :param config: Application config.
-    :type config: dict[str, object]
     :param check_upload_complete: Check for presence of 'upload_complete.json' file.
-    :type check_upload_complete: bool
-    :return: Run directory. Keys: ['sequencing_run_id', 'path', 'instrument_type']
-    :rtype: Iterator[Optional[dict[str, str]]]
+    :return: Run directory, or None. Keys: ['sequencing_run_id', 'path', 'instrument_type']
     """
-    
 
-    run_parent_dirs = config['run_parent_dirs']
-
-    for run_parent_dir in run_parent_dirs:
+    for run_parent_dir in config.run_parent_dirs:
         subdirs = os.scandir(run_parent_dir)
 
         for subdir in subdirs:
@@ -49,8 +46,7 @@ def find_run_dirs(config, check_upload_complete=True):
                     
             upload_complete = os.path.exists(os.path.join(subdir, 'upload_complete.json'))
             not_excluded = False
-            if 'excluded_runs' in config:
-                not_excluded = not run_id in config['excluded_runs']
+            not_excluded = run_id not in config.excluded_runs
 
             qc_check_complete = os.path.exists(os.path.join(subdir, 'qc_check_complete.json'))
 
@@ -61,30 +57,28 @@ def find_run_dirs(config, check_upload_complete=True):
                 "qc_check_not_complete": not qc_check_complete,
                 "not_excluded": not_excluded,
             }
-            logging.debug(json.dumps({"run_id": run_id, "conditions_checked": conditions_checked}))
+            log.debug({"run_id": run_id, "conditions_checked": conditions_checked})
 
             conditions_met = list(conditions_checked.values())
             run = {}
             if all(conditions_met):
-                logging.info(json.dumps({"event_type": "run_directory_found", "sequencing_run_id": run_id, "run_directory_path": os.path.abspath(subdir.path)}))
+                log.info({"event_type": "run_directory_found", "sequencing_run_id": run_id, "run_directory_path": os.path.abspath(subdir.path)})
                 run['path'] = os.path.abspath(subdir.path)
                 run['sequencing_run_id'] = run_id
                 run['instrument_type'] = instrument_type
                 run['run_parameters'] = run_parameters
                 yield run
             else:
-                logging.debug(json.dumps({"event_type": "directory_skipped", "run_directory_path": os.path.abspath(subdir.path), "conditions_checked": conditions_checked}))
+                log.debug({"event_type": "directory_skipped", "run_directory_path": os.path.abspath(subdir.path), "conditions_checked": conditions_checked})
                 yield None
 
 
-def get_sum_sample_fastq_file_sizes(run):
+def get_sum_sample_fastq_file_sizes(run: dict) -> float:
     """
     Get the sum of all sample fastq file sizes in the run directory.
 
     :param run: Run directory. Keys: ['sequencing_run_id', 'path', 'instrument_type']
-    :type run: dict[str, str]
     :return: Sum of all sample fastq file sizes in the run directory.
-    :rtype: float
     """
     sum_sample_fastq_file_sizes = 0.0
     latest_fastq_path = None
@@ -104,7 +98,7 @@ def get_sum_sample_fastq_file_sizes(run):
             latest_fastq_path = sorted(fastq_paths)[-1]
 
     if not latest_fastq_path:
-        logging.error(json.dumps({"event_type": "no_fastq_paths_found", "sequencing_run_id": run['sequencing_run_id']}))
+        log.error({"event_type": "no_fastq_paths_found", "sequencing_run_id": run['sequencing_run_id']})
         return sum_sample_fastq_file_sizes
 
     fastq_files_glob = os.path.join(latest_fastq_path, '*.f*q.gz')
@@ -120,32 +114,27 @@ def get_sum_sample_fastq_file_sizes(run):
     return sum_sample_fastq_file_sizes
     
 
-def scan(config: dict[str, object]) -> Iterator[Optional[dict[str, object]]]:
+def scan(config: Config) -> Iterator[Optional[dict]]:
     """
     Scanning involves looking for all existing runs and storing them to the database,
     then looking for all existing symlinks and storing them to the database.
     At the end of a scan, we should be able to determine which (if any) symlinks need to be created.
 
     :param config: Application config.
-    :type config: dict[str, object]
     :return: A run directory to analyze, or None
-    :rtype: Iterator[Optional[dict[str, object]]]
     """
-    logging.info(json.dumps({"event_type": "scan_start"}))
+    log.info({"event_type": "scan_start"})
     for run_dir in find_run_dirs(config):    
         yield run_dir
 
 
-def qc_check(config, run):
+def qc_check(config: Config, run: dict) -> Optional[dict]:
     """
     Initiate an analysis on one directory of fastq files.
 
     :param config: Application config.
-    :type config: dict[str, object]
     :param run: Run directory. Keys: ['sequencing_run_id', 'path', 'instrument_type']
-    :type run: dict[str, str]
-    :return: None
-    :rtype: None
+    :return: The QC check results
     """
     run_id = run['sequencing_run_id']
     run_dir = Path(run['path'])
@@ -155,8 +144,8 @@ def qc_check(config, run):
         run['path'],
         '--csv=1',
     ]
-
-    logging.info(json.dumps({"event_type": "qc_check_started", "sequencing_run_id": run_id, "interop_command": " ".join(interop_command)}))
+    interop_cmd_str = " ".join(interop_command)
+    log.info({"event_type": "qc_check_started", "sequencing_run_id": run_id, "interop_command": interop_cmd_str})
     timestamp_qc_check_started = datetime.datetime.now().isoformat()
     timestamp_qc_check_completed = None
 
@@ -167,10 +156,11 @@ def qc_check(config, run):
         if interop_result.returncode == 0:
             qc_check_complete = True
             timestamp_qc_check_completed = datetime.datetime.now().isoformat()
-        logging.info(json.dumps({"event_type": "qc_check_completed", "sequencing_run_id": run_id, "interop_command": " ".join(interop_command)}))
+        log.info({"event_type": "qc_check_completed", "sequencing_run_id": run_id, "interop_command": interop_cmd_str})
     except subprocess.CalledProcessError as e:
-        logging.error(json.dumps({"event_type": "qc_check_failed", "sequencing_run_id": run_id, "interop_command": " ".join(interop_command)}))
+        log.error({"event_type": "qc_check_failed", "sequencing_run_id": run_id, "interop_command": interop_cmd_str})
 
+    qc_check_result = None
     if qc_check_complete and interop_result:
         summary_lines = interop_result.stdout.splitlines()
         qc_metrics = parsers.parse_interop_summary(summary_lines)
@@ -182,7 +172,7 @@ def qc_check(config, run):
             f.write("\n")
         qc_check_result = {}
         qc_check_result['checked_metrics'] = []
-        for qc_threshold in config['qc_thresholds']:
+        for qc_threshold in config.qc_thresholds:
             instrument_type_matches = qc_threshold.get('instrument_type', '').lower() == run['instrument_type']
             instrument_type_not_specified = 'instrument_type' not in qc_threshold
             flowcell_version_matches = qc_threshold.get('flowcell_version', '') == run['run_parameters'].get('flowcell_version', None)
@@ -224,12 +214,14 @@ def qc_check(config, run):
         with open(qc_check_complete_output_path, 'w') as f:
             json.dump(qc_check_result, f, indent=2)
             f.write("\n")
-        logging.info(json.dumps({"event_type": "qc_check_complete", "sequencing_run_id": run_id, "qc_check_result": qc_check_result['overall_pass_fail']}))
+        log.info({"event_type": "qc_check_complete", "sequencing_run_id": run_id, "qc_check_result": qc_check_result['overall_pass_fail']})
 
-        notification_emails_enabled = 'send_notification_emails' in config.get('notification', {}) and config['notification']['send_notification_emails']
+        notification_emails_enabled = config.notification.get('send_notification_emails', False)
         if  notification_emails_enabled:
             try:
-                send_notification_email(run_dir, config['notification'])
-                logging.info(json.dumps({"event_type": "send_notification_email_complete", "sequencing_run_id": run_id, "qc_check_result": qc_check_result.get('overall_pass_fail', "Unknown")}))
+                send_notification_email(run_dir, config.notification)
+                log.info({"event_type": "send_notification_email_complete", "sequencing_run_id": run_id, "qc_check_result": qc_check_result.get('overall_pass_fail', "Unknown")})
             except Exception as e:
-                logging.error(json.dumps({"event_type": "send_notification_email_failed", "sequencing_run_id": run_id, "exception": str(e)}))
+                log.error({"event_type": "send_notification_email_failed", "sequencing_run_id": run_id, "exception": str(e)})
+
+    return qc_check_result

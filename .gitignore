@@ -2,5 +2,10 @@
 test_*
 projects.csv
 dev-config.json
+dev_scripts
+excluded_runs.csv
+
+docs/_build
+
 *.egg-info
 *.pyc
