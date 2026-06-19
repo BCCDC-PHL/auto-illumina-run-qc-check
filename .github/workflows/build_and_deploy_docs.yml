@@ -9,13 +9,13 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
     - name: directly build sphinx
       run: |
         pip install .
         pip install -r docs/requirements.txt
         sphinx-build docs/source ./docs/_build/html
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v7
       with:
         name: DocumentationHTML
         path: docs/_build/html
