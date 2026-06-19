@@ -19,7 +19,7 @@ def determine_instrument_type(run_id: str) -> InstrumentType:
     :param run_id: The sequencing run ID.
     :type run_id: str
     :return: The instrument type
-    :rtype auto_illumina_run_qc_check.model.InstrumentType
+    :rtype: auto_illumina_run_qc_check.model.InstrumentType
     """
     instrument_type_str = "unknown"
 

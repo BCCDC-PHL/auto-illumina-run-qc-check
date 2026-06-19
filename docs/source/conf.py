@@ -9,7 +9,7 @@ import sphinx_rtd_theme
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'BCCDC-PHL Auto Illumina Run QC Check'
-copyright = '2023, Dan Fornika'
+copyright = '2026, BCCDC Public Health Laboratory'
 author = 'Dan Fornika'
 
 # -- General configuration ---------------------------------------------------

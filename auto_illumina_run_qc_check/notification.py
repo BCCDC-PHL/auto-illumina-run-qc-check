@@ -7,6 +7,7 @@ import os
 import uuid
 
 from pathlib import Path
+from typing import Optional
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -119,17 +120,26 @@ def _collect_email_data(run_dir: Path, qc_check_complete_filename: str = "qc_che
     return email_data
     
 
-def send_notification_email(run_dir: Path, notification_config: dict):
+def send_notification_email(run_dir: Path, notification_config: dict) -> Optional[dict]:
     """
-    Collect relevant data from an analysis output dir
+    Collect relevant data from an analysis output dir and send
+
+    :param run_dir: Sequencing run output dir (must include a "qc_check_complete.json" file).
+    :type run_dir: Path
+    :param notification_config: Notification-related config. Required keys: ['auth_url', 'email_url', 'client_id', 'client_secret', 'sender_email']
+    :type notification_config: dict
+    :return: Response data, or `None` if authentication fails.
+    :rtype: Optional[dict]
     """
     access_token = _get_access_token(notification_config)
     if not access_token:
         return None
 
-    email_info = _collect_email_data(run_dir)
-    sequencing_run_id = email_info['sequencing_run_id']
-    email_body = _prepare_email_body(email_info, notification_config)
+    email_data = _collect_email_data(run_dir)
+    log.debug({"event_type": "collected_email_data", "email_data": email_data})
+
+    sequencing_run_id = email_data['sequencing_run_id']
+    email_body = _prepare_email_body(email_data, notification_config)
         
     email_url = notification_config['email_url']
     headers = {
@@ -139,14 +149,16 @@ def send_notification_email(run_dir: Path, notification_config: dict):
     }
 
     response = requests.post(email_url, data=json.dumps(email_body), headers=headers)
-    
-    # print(json.dumps(response.json(), indent=2))
+    response_json = response.json()
+
+    return response_json
 
 
 def main(args):
-    configure_logging()
+    configure_logging(args.log_level)
     config = load_config(args.config)
-    send_notification_email(args.run_dir, config.notification)
+    response_data = send_notification_email(args.run_dir, config.notification)
+    log.debug(response_data)
     log.info({"event_type": "email_notification_sent", "run_dir": os.path.abspath(args.run_dir)})
     
 
@@ -154,5 +166,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--run-dir', type=Path)
     parser.add_argument('-c', '--config', type=Path)
+    parser.add_argument('--log-level', type=str, default="info")
     args = parser.parse_args()
     main(args)
