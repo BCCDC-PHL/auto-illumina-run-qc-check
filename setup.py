@@ -2,7 +2,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name='auto-illumina-run-qc-check',
-    version='0.2.0',
+    version='0.2.1',
     packages=find_namespace_packages(),
     entry_points={
         "console_scripts": [

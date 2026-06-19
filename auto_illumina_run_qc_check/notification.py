@@ -20,6 +20,7 @@ from auto_illumina_run_qc_check.config import load_config
 import auto_illumina_run_qc_check.instrument as instrument
 import auto_illumina_run_qc_check.samplesheet as samplesheet
 
+log = logging.getLogger(__name__)
 
 def _get_access_token(email_config: dict):
     """
@@ -52,11 +53,11 @@ def _get_access_token(email_config: dict):
         timestamp = datetime.datetime.now().isoformat()
         response_json['timestamp_token_received'] = timestamp
     else:
-        logging.error(json.dumps({
+        log.error({
             'event_type': 'email_authentication_failed',
             'status_code': response.status_code,
             'message': response.text
-        }))
+        })
         return None
 
     access_token = response_json['access_token']
@@ -143,12 +144,8 @@ def send_notification_email(run_dir: Path, notification_config: dict):
 
 def main(args):
     config = load_config(args.config)
-    if 'notification' not in config:
-        logging.error("Failed to load notification config")
-        exit(-1)
-    
-    send_notification_email(args.run_dir, config['notification'])
-    logging.info(json.dumps({"event_type": "email_notification_sent", "run_dir": os.path.abspath(args.run_dir)}))
+    send_notification_email(args.run_dir, config.notification)
+    log.info({"event_type": "email_notification_sent", "run_dir": os.path.abspath(args.run_dir)})
     
 
 if __name__ == '__main__':
