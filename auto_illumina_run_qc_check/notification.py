@@ -24,16 +24,14 @@ import auto_illumina_run_qc_check.samplesheet as samplesheet
 
 log = logging.getLogger(__name__)
 
-def _get_access_token(email_config: dict):
+def _get_access_token(email_config: dict) -> Optional[str]:
     """
     Get an access token from the MCMS auth service.
 
     :param config: A dict containing the MCMS auth service URL, client ID, and client secret.
                    Required keys are: ['auth_url', 'client_id', 'client_secret'].
     :type config: dict
-    :return: A dict containing the access token and other info.
-             Keys are: ['access_token', 'token_type', 'expires_in', 'timestamp_token_received'].
-    :rtype: dict
+    :return: The access token, or None if auth fails.
     """
     auth_url = email_config['auth_url']
     client_id = email_config['client_id']
@@ -67,8 +65,13 @@ def _get_access_token(email_config: dict):
     return access_token
 
 
-def _prepare_email_body(email_data: dict, notification_config: dict):
+def _prepare_email_body(email_data: dict, notification_config: dict) -> dict:
     """
+    Prepare the email request body, prior to calling notification API.
+
+    :param email_data: Data needed to render HTML template
+    :param notification_config: Configuration for connecting to notification API. Required keys: ['sender_email', 'recipient_email_addresses']
+    :return: The body for the POST request to the notification API.
     """
     message_id = str(uuid.uuid4())
     sender_email = notification_config['sender_email']
@@ -98,8 +101,13 @@ def _prepare_email_body(email_data: dict, notification_config: dict):
     return email_request_body
 
 
-def _collect_email_data(run_dir: Path, qc_check_complete_filename: str = "qc_check_complete.json"):
+def _collect_email_data(run_dir: Path, qc_check_complete_filename: str = "qc_check_complete.json") -> dict:
     """
+    Collect data needed for populating the email template.
+
+    :param run_dir: Path to the sequencing run directory
+    :param qc_check_complete_filename: The filename of the QC Check Complete file to look for (default: `qc_check_complete.json`)
+    :return: The collected data
     """
     email_data = {'num_samples_by_project_id': {}}
     qc_check_complete_path = run_dir / qc_check_complete_filename
@@ -120,16 +128,13 @@ def _collect_email_data(run_dir: Path, qc_check_complete_filename: str = "qc_che
     return email_data
     
 
-def send_notification_email(run_dir: Path, notification_config: dict) -> Optional[dict]:
+def send_notification_email(run_dir: os.PathLike, notification_config: dict) -> Optional[dict]:
     """
     Collect relevant data from an analysis output dir and send
 
     :param run_dir: Sequencing run output dir (must include a "qc_check_complete.json" file).
-    :type run_dir: Path
     :param notification_config: Notification-related config. Required keys: ['auth_url', 'email_url', 'client_id', 'client_secret', 'sender_email']
-    :type notification_config: dict
     :return: Response data, or `None` if authentication fails.
-    :rtype: Optional[dict]
     """
     access_token = _get_access_token(notification_config)
     if not access_token:

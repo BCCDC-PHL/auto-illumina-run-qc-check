@@ -7,6 +7,9 @@ from typing import Optional
 
 @dataclass
 class Config:
+    """
+    Main application config.
+    """
     scan_interval_seconds: int = 3600
     notification: dict = field(default_factory=dict)
     qc_thresholds: list[dict] = field(default_factory=list)
@@ -25,6 +28,9 @@ class Config:
         return cls(**filtered_data)
     
 class InstrumentType(StrEnum):
+    """
+    Instrument type ('miseq', 'nextseq', 'i100' or 'unknown')
+    """
     miseq   = "miseq"
     nextseq = "nextseq"
     i100    = "i100"

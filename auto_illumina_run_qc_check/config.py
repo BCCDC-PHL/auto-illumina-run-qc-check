@@ -12,9 +12,7 @@ def load_config(config_path: os.PathLike) -> Config:
     Load the application config file.
 
     :param config_path: Path to config file.
-    :type config_path: Path
     :return: A dictionary containing configuration data.
-    :rtype: auto_illumina_run_qc_check.dataclasses.Config
     """
     config_dict = {}
 

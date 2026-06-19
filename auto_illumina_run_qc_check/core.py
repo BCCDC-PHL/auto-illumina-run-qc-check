@@ -22,16 +22,13 @@ from auto_illumina_run_qc_check.notification import send_notification_email
 log = logging.getLogger(__name__)
 
 
-def find_run_dirs(config: Config, check_upload_complete=True):
+def find_run_dirs(config: Config, check_upload_complete: bool=True) -> Iterator[Optional[dict]]:
     """
     Find sequencing run directories under the 'run_parent_dirs' listed in the config.
 
     :param config: Application config.
-    :type config: auto_illumina_run_qc_check.dataclasses.Config
     :param check_upload_complete: Check for presence of 'upload_complete.json' file.
-    :type check_upload_complete: bool
-    :return: Run directory. Keys: ['sequencing_run_id', 'path', 'instrument_type']
-    :rtype: Iterator[Optional[dict[str, str]]]
+    :return: Run directory, or None. Keys: ['sequencing_run_id', 'path', 'instrument_type']
     """
 
     for run_parent_dir in config.run_parent_dirs:
@@ -76,14 +73,12 @@ def find_run_dirs(config: Config, check_upload_complete=True):
                 yield None
 
 
-def get_sum_sample_fastq_file_sizes(run):
+def get_sum_sample_fastq_file_sizes(run: dict) -> float:
     """
     Get the sum of all sample fastq file sizes in the run directory.
 
     :param run: Run directory. Keys: ['sequencing_run_id', 'path', 'instrument_type']
-    :type run: dict[str, str]
     :return: Sum of all sample fastq file sizes in the run directory.
-    :rtype: float
     """
     sum_sample_fastq_file_sizes = 0.0
     latest_fastq_path = None
@@ -119,32 +114,27 @@ def get_sum_sample_fastq_file_sizes(run):
     return sum_sample_fastq_file_sizes
     
 
-def scan(config: Config) -> Iterator[Optional[dict[str, object]]]:
+def scan(config: Config) -> Iterator[Optional[dict]]:
     """
     Scanning involves looking for all existing runs and storing them to the database,
     then looking for all existing symlinks and storing them to the database.
     At the end of a scan, we should be able to determine which (if any) symlinks need to be created.
 
     :param config: Application config.
-    :type config: dict[str, object]
     :return: A run directory to analyze, or None
-    :rtype: Iterator[Optional[dict[str, object]]]
     """
     log.info({"event_type": "scan_start"})
     for run_dir in find_run_dirs(config):    
         yield run_dir
 
 
-def qc_check(config: Config, run):
+def qc_check(config: Config, run: dict) -> Optional[dict]:
     """
     Initiate an analysis on one directory of fastq files.
 
     :param config: Application config.
-    :type config: dict[str, object]
     :param run: Run directory. Keys: ['sequencing_run_id', 'path', 'instrument_type']
-    :type run: dict[str, str]
-    :return: None
-    :rtype: None
+    :return: The QC check results
     """
     run_id = run['sequencing_run_id']
     run_dir = Path(run['path'])
@@ -170,6 +160,7 @@ def qc_check(config: Config, run):
     except subprocess.CalledProcessError as e:
         log.error({"event_type": "qc_check_failed", "sequencing_run_id": run_id, "interop_command": interop_cmd_str})
 
+    qc_check_result = None
     if qc_check_complete and interop_result:
         summary_lines = interop_result.stdout.splitlines()
         qc_metrics = parsers.parse_interop_summary(summary_lines)
@@ -232,3 +223,5 @@ def qc_check(config: Config, run):
                 log.info({"event_type": "send_notification_email_complete", "sequencing_run_id": run_id, "qc_check_result": qc_check_result.get('overall_pass_fail', "Unknown")})
             except Exception as e:
                 log.error({"event_type": "send_notification_email_failed", "sequencing_run_id": run_id, "exception": str(e)})
+
+    return qc_check_result

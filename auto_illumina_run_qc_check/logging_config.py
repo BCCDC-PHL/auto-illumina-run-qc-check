@@ -4,6 +4,9 @@ import logging
 import sys
 
 class JSONFormatter(logging.Formatter):
+    """
+    Custom formatter for logging in structured JSON Lines.
+    """
 
     def formatTime(self, record, datefmt=None):
         """Returns the creation time of the LogRecord formatted with milliseconds."""
@@ -29,7 +32,10 @@ class JSONFormatter(logging.Formatter):
                             "original_msg_repr": repr(obj.get("message"))}
             })
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
+        """
+        Format a log record as a JSON object, encoded as a string.
+        """
         # Build the foundational structured log entry
         log_entry = {
             "timestamp": self.formatTime(record, self.datefmt),
@@ -89,6 +95,8 @@ class JSONFormatter(logging.Formatter):
 def configure_logging(log_level: str="info"):
     """
     Configure logging
+
+    :param log_level: Log level ('debug', 'info', 'warning', 'error') default: 'info'
     """
     log_level_attr = logging.INFO
     try:

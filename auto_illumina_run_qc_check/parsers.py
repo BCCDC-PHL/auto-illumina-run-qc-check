@@ -1,24 +1,24 @@
 import argparse
 import collections
 import math
+import os
 import sys
 import re
 import json
 
 
-def parse_read_summary_line(read_summary_line):
+
+def parse_read_summary_line(read_summary_line: str) -> dict:
     """
     Parse a line from a read summary csv file into a dict.
 
     :param read_summary_line: A line from a read summary csv file.
-    :type read_summary_line: str
     :return: A dict containing the parsed read summary line.
              Keys: ['ReadNumber', 'IsIndexed', 'TotalCycles', 'YieldTotal', 'ProjectedTotalYield', 'PercentAligned', 'ErrorRate', 'IntensityCycle1', 'PercentGtQ30']
-    :rtype: dict[str, object]
     """
     parsed_read_summary_line = {}
 
-    read_summary_line = read_summary_line.strip().split(',')
+    read_summary_line_split = read_summary_line.strip().split(',')
 
     headers_input_order = [
         'Level',
@@ -64,20 +64,20 @@ def parse_read_summary_line(read_summary_line):
     parsed_read_summary_line_ordered = collections.OrderedDict()
     for idx, header in enumerate(headers_input_order):
         if header == 'Level':
-            parsed_read_summary_line['ReadNumber'] = level_to_read_number[read_summary_line[idx]]
-            if re.search(r"(I)", read_summary_line[idx]):
+            parsed_read_summary_line['ReadNumber'] = level_to_read_number[read_summary_line_split[idx]]
+            if re.search(r"(I)", read_summary_line_split[idx]):
                 parsed_read_summary_line['IsIndexed'] = True
             else:
                 parsed_read_summary_line['IsIndexed'] = False
         elif header == 'IntensityC1':
-            parsed_read_summary_line[header] = int(read_summary_line[idx])
+            parsed_read_summary_line[header] = int(read_summary_line_split[idx])
         elif header == 'ErrorRate':
-            if read_summary_line[idx] == 'nan':
+            if read_summary_line_split[idx] == 'nan':
                 parsed_read_summary_line[header] = 0
             else:
-                parsed_read_summary_line[header] = float(read_summary_line[idx])
+                parsed_read_summary_line[header] = float(read_summary_line_split[idx])
         else:
-            parsed_read_summary_line[header] = float(read_summary_line[idx])
+            parsed_read_summary_line[header] = float(read_summary_line_split[idx])
 
         parsed_read_summary_line.pop('Occupancy', None)
         parsed_read_summary_line_ordered = collections.OrderedDict(sorted(parsed_read_summary_line.items(), key=lambda x: headers_output_order.index(x[0])))
@@ -85,15 +85,13 @@ def parse_read_summary_line(read_summary_line):
     return parsed_read_summary_line_ordered
 
 
-def parse_read_summary(summary_lines):
+def parse_read_summary(summary_lines: list[str]) -> list[dict]:
     """
     Parse a read summary csv file into a list of dicts.
 
     :param summary_lines: A list of lines from a read summary csv file.
-    :type summary_lines: list[str]
     :return: A list of dicts containing the parsed read summary.
              Keys: ['ReadNumber', 'IsIndexed', 'TotalCycles', 'YieldTotal', 'ProjectedTotalYield', 'PercentAligned', 'ErrorRate', 'IntensityCycle1', 'PercentGtQ30']
-    :rtype: list[dict[str, object]]
     """
     read_summary = []
 
@@ -468,7 +466,7 @@ def parse_interop_summary(summary_lines):
     return sequencingstats
 
 
-def parse_run_parameters_xml(run_parameters_xml_path, instrument_type):
+def parse_run_parameters_xml(run_parameters_xml_path: os.PathLike, instrument_type):
     """
     Parse a run parameters xml file into a dict.
 
