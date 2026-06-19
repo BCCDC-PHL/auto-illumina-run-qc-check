@@ -3,13 +3,19 @@ import json
 import logging
 import sys
 
+from typing import Optional
+
 class JSONFormatter(logging.Formatter):
     """
     Custom formatter for logging in structured JSON Lines.
     """
 
-    def formatTime(self, record, datefmt=None):
-        """Returns the creation time of the LogRecord formatted with milliseconds."""
+    def formatTime(self, record: logging.LogRecord, datefmt: Optional[str]=None) -> str:
+        """
+        Returns the creation time of the LogRecord formatted with milliseconds.
+        :param record: The logging record
+        :return: The log record creation time, formatted as an ISO timestamp
+        """
         # Convert record.created timestamp into a local datetime object
         dt = datetime.fromtimestamp(record.created)
         # Format date and time down to seconds, then slice off microsecond precision to milliseconds
