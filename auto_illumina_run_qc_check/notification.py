@@ -16,6 +16,7 @@ from jinja2 import BaseLoader
 from importlib.resources import files
 
 from auto_illumina_run_qc_check.config import load_config
+from auto_illumina_run_qc_check.logging_config import configure_logging
 
 import auto_illumina_run_qc_check.instrument as instrument
 import auto_illumina_run_qc_check.samplesheet as samplesheet
@@ -143,6 +144,7 @@ def send_notification_email(run_dir: Path, notification_config: dict):
 
 
 def main(args):
+    configure_logging()
     config = load_config(args.config)
     send_notification_email(args.run_dir, config.notification)
     log.info({"event_type": "email_notification_sent", "run_dir": os.path.abspath(args.run_dir)})

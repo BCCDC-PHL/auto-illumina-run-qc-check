@@ -16,7 +16,7 @@ from pathlib import Path
 import auto_illumina_run_qc_check.parsers as parsers
 import auto_illumina_run_qc_check.instrument as instrument
 
-from auto_illumina_run_qc_check.dataclasses import Config
+from auto_illumina_run_qc_check.model import Config
 from auto_illumina_run_qc_check.notification import send_notification_email
 
 log = logging.getLogger(__name__)

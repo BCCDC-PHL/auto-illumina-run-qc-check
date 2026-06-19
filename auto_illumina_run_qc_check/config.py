@@ -3,7 +3,7 @@ import json
 import logging
 import os
 
-from auto_illumina_run_qc_check.dataclasses import Config
+from auto_illumina_run_qc_check.model import Config
 
 log = logging.getLogger(__name__)
 

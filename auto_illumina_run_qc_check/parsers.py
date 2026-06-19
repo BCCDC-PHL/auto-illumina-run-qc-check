@@ -61,10 +61,11 @@ def parse_read_summary_line(read_summary_line):
         'PercentGtQ30',
     ]
 
+    parsed_read_summary_line_ordered = collections.OrderedDict()
     for idx, header in enumerate(headers_input_order):
         if header == 'Level':
             parsed_read_summary_line['ReadNumber'] = level_to_read_number[read_summary_line[idx]]
-            if re.search("(I)", read_summary_line[idx]):
+            if re.search(r"(I)", read_summary_line[idx]):
                 parsed_read_summary_line['IsIndexed'] = True
             else:
                 parsed_read_summary_line['IsIndexed'] = False
@@ -99,10 +100,10 @@ def parse_read_summary(summary_lines):
     header_line_num = 0
     for line in summary_lines:
         header_line_num += 1
-        if re.match("^Level", line):
+        if re.match(r'^Level', line):
             break
     for line in summary_lines[header_line_num:]:
-            if re.match("^Total", line):
+            if re.match(r'^Total', line):
                 read_summary_line = parse_read_summary_line(line)
                 read_summary.append(read_summary_line)
                 break
@@ -277,22 +278,22 @@ def parse_lanes_by_read(summary_lines):
     read_number = None
 
     for line in summary_lines:
-        if re.match("^Read 1$", line):
+        if re.match(r"^Read 1$", line):
             read_number = 1
-        elif re.match("^Read 2$", line):
+        elif re.match(r"^Read 2$", line):
             read_number = 2
-        elif re.match("^Read 2 \(I\)$", line):
+        elif re.match(r"^Read 2 \(I\)$", line):
             read_number = 2
-        elif re.match("^Read 3 \(I\)$", line):
+        elif re.match(r"^Read 3 \(I\)$", line):
             read_number = 3
-        elif re.match("^Read 4$", line):
+        elif re.match(r"^Read 4$", line):
             read_number = 4
-        elif re.match("^Extracted", line) or re.match("^Called", line) or re.match("^Scored", line):
+        elif re.match(r"^Extracted", line) or re.match(r"^Called", line) or re.match(r"^Scored", line):
             read_number = None
         else:
             pass
 
-        if read_number and not re.match("^Lane", line) and not re.match("^Read", line):
+        if read_number and not re.match(r"^Lane", line) and not re.match(r"^Read", line):
             parsed_read_line = parse_read_line(line, read_number)
             parsed_read_line['ReadNumber'] = read_number
         else:
@@ -355,19 +356,19 @@ def parse_run_stats(summary_lines):
     ]
 
     for line in summary_lines:
-        if re.match("^Level", line):
-            read_summary_headers = re.split("\s*,", line.rstrip())
+        if re.match(r"^Level", line):
+            read_summary_headers = re.split(r"\s*,", line.rstrip())
 
             for idx, header in enumerate(read_summary_headers):
                 if header in replaced_fields:
                     read_summary_headers[idx] = replaced_fields[header]
             break
     for line in summary_lines:
-        if re.match("^Total", line) or re.match("^Non-indexed", line):
+        if re.match(r"^Total", line) or re.match(r"^Non-indexed", line):
             # read_summary_lines.append(re.split(",", line.rstrip()))
             break
         else:
-            if re.match("^Read", line):
+            if re.match(r"^Read", line):
                 read_summary_lines.append(re.split(",", line.rstrip()))
 
     read_summary = []
@@ -376,7 +377,7 @@ def parse_run_stats(summary_lines):
         for idx, header in enumerate(read_summary_headers):
             if header == 'ReadNumber':
                 read_summary_line_dict[header] = level_to_read_number[line[idx]]
-                if re.search("(I)", line[idx]):
+                if re.search(r"(I)", line[idx]):
                     read_summary_line_dict['IsIndexed'] = True
                 else:
                     read_summary_line_dict['IsIndexed'] = False
@@ -483,13 +484,19 @@ def parse_run_parameters_xml(run_parameters_xml_path, instrument_type):
         for line in f:
             line = line.strip()
             if instrument_type == 'miseq':
-                if re.search("^<ReagentKitVersion>", line):
-                    version = re.search("<ReagentKitVersion>(.*)</ReagentKitVersion>", line).group(1)
+                if re.search(r"^<ReagentKitVersion>", line):
+                    version = "undetermined"
+                    match = re.search("<ReagentKitVersion>(.*)</ReagentKitVersion>", line)
+                    if match:
+                        version = match.group(1)
                     version_num = version.lstrip('Version')
                     run_parameters['flowcell_version'] = version_num
             elif instrument_type == 'nextseq':
-                if re.search("^<FlowCellVersion>", line):
-                    version_num = re.search("<FlowCellVersion>(.*)</FlowCellVersion>", line).group(1)
+                if re.search(r"^<FlowCellVersion>", line):
+                    version_num = "undetermined"
+                    match = re.search("<FlowCellVersion>(.*)</FlowCellVersion>", line)
+                    if match:
+                        version_num = match.group(1)
                     run_parameters['flowcell_version'] = version_num
 
     return run_parameters

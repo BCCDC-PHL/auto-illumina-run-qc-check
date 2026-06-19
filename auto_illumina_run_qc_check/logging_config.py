@@ -72,6 +72,7 @@ class JSONFormatter(logging.Formatter):
             "stack_info",
             "thread",
             "threadName",
+            "taskName",
         }
         for key, value in record.__dict__.items():
             if key not in builtins:
@@ -85,7 +86,7 @@ class JSONFormatter(logging.Formatter):
             return self._safe_serialize(log_entry)
 
 
-def configure_logging(log_level: str):
+def configure_logging(log_level: str="info"):
     """
     Configure logging
     """

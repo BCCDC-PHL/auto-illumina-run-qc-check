@@ -12,8 +12,8 @@ from dataclasses import asdict
 import auto_illumina_run_qc_check.core as core
 
 from auto_illumina_run_qc_check.config import load_config
-from auto_illumina_run_qc_check.dataclasses import Config
-from auto_illumina_run_qc_check.logging import configure_logging
+from auto_illumina_run_qc_check.model import Config
+from auto_illumina_run_qc_check.logging_config import configure_logging
 
 DEFAULT_SCAN_INTERVAL_SECONDS = 3600
 

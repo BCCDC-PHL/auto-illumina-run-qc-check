@@ -1,6 +1,9 @@
 from dataclasses import dataclass, field, fields
+from enum import StrEnum
 from pathlib import Path
 from typing import Optional
+
+
 
 @dataclass
 class Config:
@@ -21,3 +24,8 @@ class Config:
         filtered_data = {k: v for k, v in data.items() if k in valid_fields}
         return cls(**filtered_data)
     
+class InstrumentType(StrEnum):
+    miseq   = "miseq"
+    nextseq = "nextseq"
+    i100    = "i100"
+    unknown = "unknown"
