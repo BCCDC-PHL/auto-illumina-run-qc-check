@@ -13,7 +13,7 @@ setup(
     package_data={
         "auto_illumina_run_qc_check": ["templates/*.html"],
     },
-    python_requires='>=3.5,<3.11',
+    python_requires='>=3.5',
     install_requires=[
         'requests~=2.32',
         'jinja2~=3.1',
